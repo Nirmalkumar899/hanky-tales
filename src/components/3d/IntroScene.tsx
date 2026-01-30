@@ -1,35 +1,30 @@
 'use client';
 
-import { useRef, useMemo, useEffect } from 'react';
+import { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 
 export function IntroScene({ onComplete }: { onComplete: () => void }) {
     const meshRef = useRef<THREE.Mesh>(null);
 
-    // Reuse the tissue geometry logic but maybe make it larger/more dramatic
-    const geometry = useMemo(() => new THREE.PlaneGeometry(5, 5, 64, 64), []);
+    // High segment geometry for detailed crumpling
+    // Using Icosahedron for a "ball" shape that can unfurl, or Plane for "sheet"
+    // Let's stick to Plane but warp it into a ball initially? 
+    // actually, a sphere that smooths out might be weird. 
+    // Let's use a Plane that is crumpled into a tight ball-like chaos, then expands.
+    const geometry = useMemo(() => new THREE.PlaneGeometry(6, 6, 128, 128), []);
+
     const material = useMemo(() => new THREE.MeshStandardMaterial({
-        color: "#ffffff",
-        emissive: "#dddddd", // slight self-illumination to ensure it's WHITE
-        emissiveIntensity: 0.1,
+        color: "#ffffff", // Will start dark via lighting/color lerp
         side: THREE.DoubleSide,
-        roughness: 0.2, // smoother
+        roughness: 0.4,
         metalness: 0.1,
-        transparent: true,
-        opacity: 0,
+        flatShading: true, // Low poly look for the crumple phase looks good
     }), []);
 
     const originalPositions = useMemo(() => {
         return geometry.attributes.position.array.slice();
     }, [geometry]);
-
-    useEffect(() => {
-        // Start with 0 opacity and fade in
-        if (meshRef.current) {
-            // meshRef.current.material.opacity = 0;
-        }
-    }, []);
 
     useFrame((state) => {
         const time = state.clock.getElapsedTime();
@@ -37,54 +32,85 @@ export function IntroScene({ onComplete }: { onComplete: () => void }) {
         if (meshRef.current) {
             const material = meshRef.current.material as THREE.MeshStandardMaterial;
 
-            // 1. Movement: Start far back and come forward
-            // We want the animation to last about 3-4 seconds.
-            const duration = 4.0; // Slightly longer for cinematic feel
+            // Animation Timeline:
+            // 0s - 1.5s: Crumpled, chaotic, dark (THE ISSUE)
+            // 1.5s - 4.0s: Smooths out, expands, brightens (THE TISSUE)
+
+            const duration = 5.0;
             const progress = Math.min(time / duration, 1);
 
-            // Easing function for smooth arrival
-            const easeOutCubic = (x: number) => 1 - Math.pow(1 - x, 3);
-            const easedProgress = easeOutCubic(progress);
+            // Phase Logic
+            // 0 = Crumpled, 1 = Smooth
+            // We want it to stay crumpled for a bit, then smooth.
+            const smoothFactor = THREE.MathUtils.smoothstep(time, 1.5, 3.5);
 
-            const startZ = -15; // Start further back
-            const endZ = 1.5; // End closer
-
-            meshRef.current.position.z = THREE.MathUtils.lerp(startZ, endZ, easedProgress);
-
-            // 2. Rotation: Elegant swirling
-            meshRef.current.rotation.z = Math.sin(time * 0.5) * 0.2; // Gentle sway
-            // meshRef.current.rotation.x = Math.sin(time * 0.5) * 0.5 + Math.PI / 3; 
-            // More dynamic rotation to show off the "folds"
-            meshRef.current.rotation.x = THREE.MathUtils.lerp(Math.PI / 2, Math.PI / 4, easedProgress);
-            meshRef.current.rotation.y = Math.sin(time * 0.3) * 0.3;
-
-            // 3. Opacity: Fade in 
-            if (progress < 0.1) {
-                material.opacity = progress * 10;
-            } else {
-                material.opacity = 1;
-            }
-
-            // 4. Wave Animation - smoother, more "silk-like"
+            // --- 1. Vertex Manipulation ---
             const positions = meshRef.current.geometry.attributes.position;
             const count = positions.count;
 
             for (let i = 0; i < count; i++) {
-                const x = originalPositions[i * 3];
-                const y = originalPositions[i * 3 + 1];
+                const ox = originalPositions[i * 3];
+                const oy = originalPositions[i * 3 + 1];
+                const oz = originalPositions[i * 3 + 2];
 
-                // Large fluid motion
-                const waveX = Math.sin(x * 0.5 + time * 1.5) * 0.8; // Broader waves
-                const waveY = Math.sin(y * 0.5 + time * 1.2) * 0.8;
-                const waveZ = Math.sin((x + y) * 0.3 + time * 1.0) * 0.5;
+                // Crumple Noise (High frequency, high amplitude)
+                // We use position based noise to make it look like crumpled paper
+                const noiseFreq = 2.0;
+                const noiseAmp = (1 - smoothFactor) * 1.5; // Amplitude decreases as we smooth out
 
-                positions.setZ(i, waveX + waveY + waveZ);
+                const crumpleX = Math.sin(ox * noiseFreq + time * 5) * Math.cos(oy * noiseFreq) * noiseAmp;
+                const crumpleY = Math.cos(ox * noiseFreq) * Math.sin(oy * noiseFreq + time * 5) * noiseAmp;
+                const crumpleZ = Math.sin(ox * noiseFreq + oy * noiseFreq + time * 2) * noiseAmp;
+
+                // Smooth Wave (Low frequency, gentle)
+                const waveX = Math.sin(ox * 0.5 + time) * 0.2 * smoothFactor;
+                const waveY = Math.sin(oy * 0.3 + time) * 0.2 * smoothFactor;
+                const waveZ = Math.sin((ox + oy) * 0.5 + time) * 0.5 * smoothFactor;
+
+                // Blend
+                // When smoothFactor is 0, we are purely crumbled.
+                // We also want to 'bunch up' the vertices towards center when crumpled.
+                const bunchFactor = (1 - smoothFactor) * 0.8;
+
+                positions.setXYZ(
+                    i,
+                    ox * (1 - bunchFactor) + crumpleX + waveX,
+                    oy * (1 - bunchFactor) + crumpleY + waveY,
+                    oz + crumpleZ + waveZ
+                );
             }
             positions.needsUpdate = true;
             meshRef.current.geometry.computeVertexNormals();
 
-            // Check for completion
-            if (time > duration + 0.5) {
+            // Update shading: Flat shading for crumpled look, Smooth for tissue
+            // material.flatShading = smoothFactor < 0.5; // Can't change flatShading runtime easily in Threejs without recompile
+            // So we adjust roughness instead
+            material.roughness = THREE.MathUtils.lerp(0.9, 0.2, smoothFactor);
+
+            // --- 2. Color / Lighting ---
+            // Start slightly grey/reddish (tension) -> Pure White (relief)
+            const colorCrumpled = new THREE.Color("#4a4a4a"); // Dark grey
+            const colorSmooth = new THREE.Color("#ffffff");
+            material.color.lerpColors(colorCrumpled, colorSmooth, smoothFactor);
+
+            // Emmisive boost at the end for "Heavenly" feel
+            //   if (smoothFactor > 0.8) {
+            material.emissive.setHex(0xffffff);
+            material.emissiveIntensity = (smoothFactor - 0.8) * 0.5;
+            //   } else {
+            //       material.emissiveIntensity = 0;
+            //   }
+
+            // --- 3. Position / Rotation ---
+            // Rotate fast and chaotic initially
+            const rotSpeed = (1 - smoothFactor) * 2 + 0.2;
+            meshRef.current.rotation.x += 0.01 * rotSpeed;
+            meshRef.current.rotation.y += 0.02 * rotSpeed;
+
+            // Move closer
+            meshRef.current.position.z = THREE.MathUtils.lerp(-5, 0, smoothFactor);
+
+            if (time > duration) {
                 onComplete();
             }
         }
@@ -92,13 +118,9 @@ export function IntroScene({ onComplete }: { onComplete: () => void }) {
 
     return (
         <>
-            {/* High intensity ambient light for pure white look */}
-            <ambientLight intensity={1.5} />
-
-            {/* Dramatic rim lighting */}
-            <spotLight position={[10, 10, 10]} angle={0.5} penumbra={1} intensity={2} color="#ffffff" castShadow />
-            <spotLight position={[-10, 0, 5]} angle={0.5} penumbra={1} intensity={1} color="#eefeff" />
-            <pointLight position={[0, -5, 2]} intensity={0.5} color="#ffffff" />
+            <ambientLight intensity={0.5} />
+            <directionalLight position={[5, 5, 5]} intensity={1} color="#ffffff" />
+            <pointLight position={[-5, -5, -5]} intensity={0.5} color="#ffaa00" /> {/* Slight warm undertone for the 'issue' phase */}
 
             <mesh ref={meshRef} geometry={geometry} material={material} />
         </>
