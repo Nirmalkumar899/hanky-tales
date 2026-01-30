@@ -1,7 +1,7 @@
 'use client';
 
 import { Canvas } from '@react-three/fiber';
-import { IntroScene } from '../3d/IntroScene'; // Ensure correct path
+import { IntroScene } from '../3d/IntroScene';
 import { useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 
@@ -11,15 +11,14 @@ interface IntroOverlayProps {
 
 export function IntroOverlay({ onIntroComplete }: IntroOverlayProps) {
     const [sceneCompleted, setSceneCompleted] = useState(false);
-    const [textStage, setTextStage] = useState<'issue' | 'tissue'>('issue');
+    const [textStage, setTextStage] = useState<'micro' | 'macro'>('micro');
 
     useEffect(() => {
-        // Sync text with the 3D animation timing
-        // 0-1.5s: Issue
-        // 1.5s+: Tissue
+        // 0-2.0s: Micro/Engineering view
+        // 2.0s+: Macro/Product view
         const timer = setTimeout(() => {
-            setTextStage('tissue');
-        }, 1500);
+            setTextStage('macro');
+        }, 2000);
         return () => clearTimeout(timer);
     }, []);
 
@@ -27,7 +26,7 @@ export function IntroOverlay({ onIntroComplete }: IntroOverlayProps) {
         if (sceneCompleted) {
             const timer = setTimeout(() => {
                 onIntroComplete();
-            }, 500); // Quick fade out after animation ends
+            }, 500);
             return () => clearTimeout(timer);
         }
     }, [sceneCompleted, onIntroComplete]);
@@ -43,28 +42,27 @@ export function IntroOverlay({ onIntroComplete }: IntroOverlayProps) {
                     className="fixed inset-0 z-50 bg-black flex items-center justify-center overflow-hidden"
                 >
                     <div className="w-full h-full relative">
-                        <Canvas camera={{ position: [0, 0, 6], fov: 50 }}>
+                        <Canvas camera={{ position: [0, 0, 5], fov: 60 }}>
                             <IntroScene onComplete={() => setSceneCompleted(true)} />
                         </Canvas>
 
-                        {/* Centered Text Overlay */}
                         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                             <AnimatePresence mode="wait">
-                                {textStage === 'issue' ? (
+                                {textStage === 'micro' ? (
                                     <motion.div
-                                        key="issue"
-                                        initial={{ opacity: 0, scale: 0.8, filter: "blur(10px)" }}
-                                        animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-                                        exit={{ opacity: 0, scale: 1.5, filter: "blur(20px)" }}
-                                        transition={{ duration: 0.2 }} // Fast, punchy transition
+                                        key="micro"
+                                        initial={{ opacity: 0, scale: 2 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        exit={{ opacity: 0, scale: 0.5, filter: "blur(10px)" }}
+                                        transition={{ duration: 0.8 }}
                                     >
-                                        <h2 className="text-white text-5xl md:text-7xl font-bold tracking-tighter uppercase text-center" style={{ textShadow: "0 0 10px rgba(255,0,0,0.5)" }}>
-                                            Got an Issue?
+                                        <h2 className="text-cyan-200 font-mono text-xl tracking-[0.5em] uppercase text-center opacity-80 border-b border-cyan-500/30 pb-2">
+                                            Micro-Woven Tech
                                         </h2>
                                     </motion.div>
                                 ) : (
                                     <motion.div
-                                        key="tissue"
+                                        key="macro"
                                         initial={{ opacity: 0, scale: 0.9, y: 20 }}
                                         animate={{ opacity: 1, scale: 1, y: 0 }}
                                         transition={{ duration: 1.0, ease: "easeOut" }}
@@ -72,7 +70,7 @@ export function IntroOverlay({ onIntroComplete }: IntroOverlayProps) {
                                         <h2 className="text-white font-serif text-5xl md:text-7xl tracking-wide italic text-center drop-shadow-[0_0_15px_rgba(255,255,255,0.8)]">
                                             Get a tissue!
                                         </h2>
-                                        <p className="text-white/60 text-center mt-4 text-sm tracking-[0.3em] uppercase">Experience Softness</p>
+                                        <p className="text-white/60 text-center mt-4 text-sm tracking-[0.3em] uppercase">Engineered Softness</p>
                                     </motion.div>
                                 )}
                             </AnimatePresence>

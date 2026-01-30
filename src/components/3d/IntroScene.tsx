@@ -2,23 +2,40 @@
 
 import { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { Sparkles } from '@react-three/drei';
+import { Sparkles, Wireframe } from '@react-three/drei';
 import * as THREE from 'three';
 
 export function IntroScene({ onComplete }: { onComplete: () => void }) {
-    const meshRef = useRef<THREE.Mesh>(null);
+    const groupRef = useRef<THREE.Group>(null);
 
-    const geometry = useMemo(() => new THREE.PlaneGeometry(6, 6, 128, 128), []);
+    // High density plane for the "weave" look
+    const geometry = useMemo(() => new THREE.PlaneGeometry(8, 8, 128, 128), []);
 
-    // Use MeshPhysicalMaterial for better lighting/iridescence
-    const material = useMemo(() => new THREE.MeshPhysicalMaterial({
-        color: "#000000",
+    // Material starts as wireframe-like (handled via props or separate mesh, 
+    // but standard material wireframe is easy to toggle/lerp opacity if we use two meshes)
+    // Let's use a single mesh and manipulate wireframe prop? No, can't anim wireframe linewidth easily in WebGL1/2 without shader.
+    // approach: Use a custom shader or a high-segment mesh with wireframe material overlay.
+    // Simpler approach: 
+    // 1. MeshPhysicalMaterial (The Tissue) - initially invisible/transparent
+    // 2. MeshBasicMaterial (The Fibers) - wireframe: true - initially visible
+
+    const tissueMaterial = useMemo(() => new THREE.MeshPhysicalMaterial({
+        color: "#ffffff",
         side: THREE.DoubleSide,
-        roughness: 0.8,
-        metalness: 0.2,
+        roughness: 0.5,
+        metalness: 0.1,
         transmission: 0,
-        thickness: 0,
-        clearcoat: 0,
+        thickness: 1,
+        transparent: true,
+        opacity: 0,
+    }), []);
+
+    // We'll use a second mesh for the wireframe "Fibers"
+    const fiberMaterial = useMemo(() => new THREE.MeshBasicMaterial({
+        color: "#aaddff", // Cyan-ish for "Tech/Science" feel initially
+        wireframe: true,
+        transparent: true,
+        opacity: 1,
     }), []);
 
     const originalPositions = useMemo(() => {
@@ -28,89 +45,69 @@ export function IntroScene({ onComplete }: { onComplete: () => void }) {
     useFrame((state) => {
         const time = state.clock.getElapsedTime();
 
-        if (meshRef.current) {
-            const material = meshRef.current.material as THREE.MeshPhysicalMaterial;
+        // Animation Timeline:
+        // 0s - 2.0s: Micro View (Wireframe, close up, tech color)
+        // 2.0s - 4.5s: Zoom Out + Solidify (Wireframe fade out, Tissue fade in, White color)
 
-            const duration = 5.0;
-            const progress = Math.min(time / duration, 1);
+        const duration = 5.0;
+        // const progress = Math.min(time / duration, 1); // Not used
 
-            // 0 = Crumpled/Dark, 1 = Smooth/White
-            const smoothFactor = THREE.MathUtils.smoothstep(time, 1.0, 4.0);
+        // Zoom / Transformation Factor
+        const zoomFactor = THREE.MathUtils.smoothstep(time, 0.5, 4.0);
 
-            // --- 1. Vertex Manipulation (Crumple -> Wave) ---
-            const positions = meshRef.current.geometry.attributes.position;
+        if (groupRef.current) {
+            // --- 1. Camera & Position (The Zoom) ---
+            // We simulate zoom by moving the mesh away from camera (or scaling it down visually)
+            // Start very close: Z = 0.5? 
+            const startZ = 1.5; // Very close to camera
+            const endZ = -2;   // Normal viewing distance
+
+            // Non-linear zoom for dramatic effect
+            const currentZ = THREE.MathUtils.lerp(startZ, endZ, Math.pow(zoomFactor, 0.5));
+            groupRef.current.position.z = currentZ;
+
+            // --- 2. Wave Animation ---
+            // Micro view: High freq vibration (molecular?)
+            // Macro view: Gentle cloth wave
+            const positions = geometry.attributes.position;
             const count = positions.count;
 
             for (let i = 0; i < count; i++) {
                 const ox = originalPositions[i * 3];
                 const oy = originalPositions[i * 3 + 1];
-                const oz = originalPositions[i * 3 + 2];
 
-                const noiseFreq = 2.0;
-                const noiseAmp = (1 - smoothFactor) * 1.5;
+                // Micro Vibration
+                const vibFreq = 20.0;
+                const vibAmp = (1 - zoomFactor) * 0.02;
+                const vibZ = Math.sin(ox * vibFreq + time * 10) * Math.cos(oy * vibFreq) * vibAmp;
 
-                const crumpleX = Math.sin(ox * noiseFreq + time * 5) * Math.cos(oy * noiseFreq) * noiseAmp;
-                const crumpleY = Math.cos(ox * noiseFreq) * Math.sin(oy * noiseFreq + time * 5) * noiseAmp;
-                const crumpleZ = Math.sin(ox * noiseFreq + oy * noiseFreq + time * 2) * noiseAmp;
+                // Macro Wave
+                const waveX = Math.sin(ox * 0.5 + time) * 0.2 * zoomFactor;
+                const waveY = Math.sin(oy * 0.3 + time) * 0.2 * zoomFactor;
+                const waveZ = Math.sin((ox + oy) * 0.5 + time) * 0.5 * zoomFactor;
 
-                const waveX = Math.sin(ox * 0.5 + time) * 0.2 * smoothFactor;
-                const waveY = Math.sin(oy * 0.3 + time) * 0.2 * smoothFactor;
-                const waveZ = Math.sin((ox + oy) * 0.5 + time) * 0.5 * smoothFactor;
-
-                // Bunching effect when crumpled
-                const bunchFactor = (1 - smoothFactor) * 0.8;
-
-                positions.setXYZ(
-                    i,
-                    ox * (1 - bunchFactor) + crumpleX + waveX,
-                    oy * (1 - bunchFactor) + crumpleY + waveY,
-                    oz + crumpleZ + waveZ
-                );
+                positions.setZ(i, vibZ + waveZ);
             }
             positions.needsUpdate = true;
-            meshRef.current.geometry.computeVertexNormals();
+            geometry.computeVertexNormals();
 
-            // --- 2. Color & Material Transition ---
-            // Phase 1: Stress (0 - 0.3) -> Dark Red / Black / Jagged
-            // Phase 2: Transmute (0.3 - 0.7) -> Pastel Explosion (Iridescent)
-            // Phase 3: Relief (0.7 - 1.0) -> Pearl White / Soft
+            // --- 3. Material Transition ---
+            // Children[0] is Fiber (Wireframe)
+            // Children[1] is Tissue (Solid)
+            // We can access materials directly since we have the refs to them via useMemo
 
-            if (smoothFactor < 0.3) {
-                // Stress Phase
-                const t = smoothFactor / 0.3;
-                material.color.setHSL(0.95, 1, 0.1 + t * 0.1); // Deep Red to Dark Grey
-                material.emissive.setHSL(0, 1, 0.2 * (1 - t)); // Glowing Red pulse
-                material.roughness = 0.9 - t * 0.2;
-            } else if (smoothFactor < 0.8) {
-                // Rainbow/Pastel Phase
-                const t = (smoothFactor - 0.3) / 0.5;
-                // Cycle through pastel colors: Pink -> Cyan -> Mint
-                const hue = (0.9 + t * 0.5) % 1;
-                material.color.setHSL(hue, 0.8, 0.7);
-                material.emissive.setHSL(hue, 1, 0.2);
+            // Fade out fibers
+            fiberMaterial.opacity = 1 - Math.pow(zoomFactor, 2); // Fade out quickly
+            // Change fiber color from Tech Blue to White as it fades
+            fiberMaterial.color.lerpColors(new THREE.Color("#00ffff"), new THREE.Color("#ffffff"), zoomFactor);
 
-                material.roughness = 0.7 - t * 0.5;
-                material.metalness = 0.2 + t * 0.3;
-                material.clearcoat = t; // Add shine
-            } else {
-                // White Phase
-                const t = (smoothFactor - 0.8) / 0.2;
-                const startColor = new THREE.Color().setHSL(0.4, 0.8, 0.7); // Minty start
-                const endColor = new THREE.Color("#ffffff");
+            // Fade in tissue
+            tissueMaterial.opacity = zoomFactor;
 
-                material.color.lerpColors(startColor, endColor, t);
-                material.emissive.setHex(0x000000); // Turn off emissive
-                material.roughness = 0.2;
-                material.metalness = 0.1;
-                material.clearcoat = 1.0;
-            }
-
-            // --- 3. Position / Rotation ---
-            const rotSpeed = (1 - smoothFactor) * 2 + 0.1;
-            meshRef.current.rotation.x += 0.01 * rotSpeed;
-            meshRef.current.rotation.y += 0.015 * rotSpeed;
-
-            meshRef.current.position.z = THREE.MathUtils.lerp(-4, 0, smoothFactor);
+            // Rotation
+            groupRef.current.rotation.z = time * 0.05;
+            // Tilt slightly as we zoom out
+            groupRef.current.rotation.x = THREE.MathUtils.lerp(0, Math.PI / 6, zoomFactor);
 
             if (time > duration) {
                 onComplete();
@@ -120,23 +117,27 @@ export function IntroScene({ onComplete }: { onComplete: () => void }) {
 
     return (
         <>
-            <ambientLight intensity={0.5} />
-            {/* Dynamic Lighting Setup */}
-            <pointLight position={[10, 10, 10]} intensity={1} color="#ffffff" />
-            <pointLight position={[-10, -10, -5]} intensity={0.5} color="#ff00cc" /> {/* Magenta backlight for drama */}
-            <spotLight position={[0, 0, 10]} angle={0.5} penumbra={1} intensity={2} />
+            <ambientLight intensity={1} />
+            <directionalLight position={[5, 5, 5]} intensity={2} color="#ffffff" />
+            <spotLight position={[0, 0, 10]} angle={0.5} penumbra={1} intensity={1} />
 
-            <mesh ref={meshRef} geometry={geometry} material={material} />
+            <group ref={groupRef}>
+                {/* Wireframe Mesh (The Micro Fibers) */}
+                <mesh geometry={geometry} material={fiberMaterial} />
 
-            {/* Magical Particles that appear as it smoothes out */}
+                {/* Solid Mesh (The Tissue) */}
+                <mesh geometry={geometry} material={tissueMaterial} />
+            </group>
+
+            {/* Particles appearing at the end */}
             <Sparkles
-                count={100}
-                scale={10}
-                size={4}
-                speed={0.4}
-                opacity={0.8}
+                count={50}
+                scale={8}
+                size={3}
+                speed={0.2}
+                opacity={0.5}
                 color="#fff"
-                position={[0, 0, -2]}
+                position={[0, 0, -3]}
             />
         </>
     );
