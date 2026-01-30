@@ -8,8 +8,8 @@ import * as THREE from 'three';
 export function IntroScene({ onComplete }: { onComplete: () => void }) {
     const meshRef = useRef<THREE.Mesh>(null);
 
-    // High-poly geometry: Plane (Sheet) instead of Icosahedron (Sphere)
-    const geometry = useMemo(() => new THREE.PlaneGeometry(5, 5, 64, 64), []);
+    // High-poly geometry: Icosahedron (Sphere/Circle) as requested
+    const geometry = useMemo(() => new THREE.IcosahedronGeometry(2, 64), []);
 
     const material = useMemo(() => new THREE.MeshStandardMaterial({
         color: "#f8fafc",
@@ -19,7 +19,7 @@ export function IntroScene({ onComplete }: { onComplete: () => void }) {
         side: THREE.DoubleSide,
     }), []);
 
-    // Store original positions (Flat Plane)
+    // Store original positions
     const originalPositions = useMemo(() => {
         return Float32Array.from(geometry.attributes.position.array);
     }, [geometry]);
@@ -40,62 +40,46 @@ export function IntroScene({ onComplete }: { onComplete: () => void }) {
             const endColor = new THREE.Color("#ffffff");
             (mesh.material as THREE.MeshStandardMaterial).color.lerpColors(startColor, endColor, transitionProgress);
 
-            // 2. SHAPE TRANSITION: Ball -> Sheet
-            // We want to bend the plane into a ball initially, then release it.
-            const crumpleFactor = 1 - transitionProgress; // 1 = Ball, 0 = Sheet
-            const noiseAmp = crumpleFactor * 1.5;
+            // 2. VERTEX DEFORMATION (Crumpled Ball -> Smooth Sphere)
+            // Noise amplitude fades from High to 0
+            const noiseAmp = THREE.MathUtils.lerp(1.2, 0, transitionProgress);
             const speed = time * 2;
-
-            // Center of the plane is 0,0,0
 
             for (let i = 0; i < count; i++) {
                 const ox = originalPositions[i * 3];
                 const oy = originalPositions[i * 3 + 1];
-                const oz = originalPositions[i * 3 + 2]; // 0 for plane
+                const oz = originalPositions[i * 3 + 2];
 
                 // Noise
                 const noiseX = Math.sin(ox * 2 + speed) * Math.cos(oy * 2.5 + speed);
-                const noiseY = Math.cos(ox * 3 + speed) * Math.sin(oy * 3 + speed);
-                const noiseZ = Math.sin(ox * 1.5 + speed) * Math.cos(oy * 1.5 + speed);
+                const noiseY = Math.cos(oz * 3 + speed) * Math.sin(ox * 3 + speed);
+                const noiseZ = Math.sin(oy * 2 + speed) * Math.cos(oz * 2 + speed);
 
-                // DEFORMATION LOGIC
-                // Target: The flat plane (ox, oy, oz)
-                // Crumpled: Vertices pulled towards a spherical volume + Noise
-
-                // Simple "Ballify" mapping?
-                // Just relying on Noise + Z-displacement is often enough for "Crumpled tissue".
-                // Let's pull XY in slightly to make it look balled up, not just a wavy sheet.
-
-                // Shrink factor for XY to make it compact when crumpled
-                const shrink = THREE.MathUtils.lerp(1, 0.3, crumpleFactor);
-
-                // Z-Displacement to give volume (Crumpled ball has thickness)
-                // Wrap plain Z (0) into a volume
-                // A sphere-like wrap could be: 
-                // z = sin(ox) * cos(oy) * crumpleFactor * scale?
-                // Simpler: Just lots of high amplitude XYZ noise makes it look 3D.
-
-                let nx = ox * shrink + noiseX * noiseAmp;
-                let ny = oy * shrink + noiseY * noiseAmp;
-                let nz = oz + noiseZ * noiseAmp * 2; // Extra Height for crumple
-
-                posAttribute.setXYZ(i, nx, ny, nz);
+                // Apply noise to original spherical position
+                posAttribute.setXYZ(
+                    i,
+                    ox + noiseX * noiseAmp,
+                    oy + noiseY * noiseAmp,
+                    oz + noiseZ * noiseAmp
+                );
             }
             posAttribute.needsUpdate = true;
             mesh.geometry.computeVertexNormals();
 
-            // 3. ROTATION / SCALE
+            // 3. ROTATION / SHAKE / SCALE
             if (transitionProgress < 1) {
                 // Fast spin/shake
                 mesh.rotation.x += 0.02;
                 mesh.rotation.y += 0.05;
-                // Add shake
-                mesh.position.x = (Math.random() - 0.5) * 0.1 * crumpleFactor;
+                // Keep it compact
+                mesh.scale.setScalar(0.8);
             } else {
                 // Gentle float
-                mesh.rotation.x = Math.sin(time * 0.5) * 0.05; // Less sway to keep text clear
-                mesh.rotation.y = Math.sin(time * 0.3) * 0.05;
-                mesh.position.set(0, 0, 0);
+                mesh.rotation.x = Math.sin(time * 0.5) * 0.05;
+                mesh.rotation.y += 0.005;
+                // Slight expansion
+                const openScale = THREE.MathUtils.lerp(0.8, 1.0, transitionProgress);
+                mesh.scale.setScalar(openScale);
             }
         }
 
