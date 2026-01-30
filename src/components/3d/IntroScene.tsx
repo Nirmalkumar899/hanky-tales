@@ -2,62 +2,93 @@
 
 import { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { Text, Instance, Instances, Environment, Float, Cloud } from '@react-three/drei';
+import { Text3D, Center, Float } from '@react-three/drei';
 import * as THREE from 'three';
 
 export function IntroScene({ onComplete }: { onComplete: () => void }) {
-    const boxRef = useRef<THREE.Group>(null);
+    const hRef = useRef<THREE.Group>(null);
+    const nameRef = useRef<THREE.Group>(null);
+    const wrapperRef = useRef<THREE.Mesh>(null);
 
-    // --- MATERIALS ---
-    const boxMaterial = useMemo(() => new THREE.MeshStandardMaterial({
-        color: "#ffffff",
-        roughness: 0.2, // Glossy box
+    // Font URL for Text3D
+    const fontUrl = "https://threejs.org/examples/fonts/helvetiker_bold.typeface.json";
+
+    const textMaterial = useMemo(() => new THREE.MeshStandardMaterial({
+        color: "#ff3333", // Netflix Redish? Or Brand Color? Let's use a Premium Red -> then wrap in white.
+        // Actually user said "tissue wraps the name". Let's make text Red so the white tissue contrast is visible.
+        roughness: 0.4,
         metalness: 0.1,
     }), []);
 
-    const tissueMaterial = useMemo(() => new THREE.MeshPhysicalMaterial({
+    const wrapperMaterial = useMemo(() => new THREE.MeshPhysicalMaterial({
         color: "#ffffff",
-        roughness: 0.8, // Matte Fabric
+        roughness: 0.8,
         metalness: 0.0,
-        clearcoat: 0.0,
-        sheen: 1.0,
-        sheenColor: new THREE.Color("#e0f2fe"), // Baby blue sheen
+        transmission: 0.5, // Semi-transparent tissue
+        thickness: 0.5,
         side: THREE.DoubleSide,
         transparent: true,
-        opacity: 0.9,
+        opacity: 0,
     }), []);
-
-    const waterMaterial = useMemo(() => new THREE.MeshPhysicalMaterial({
-        color: "#ffffff",
-        roughness: 0.0,
-        metalness: 0.0,
-        transmission: 1.0, // Glass/Water
-        thickness: 1.0,
-        ior: 1.33,
-        transparent: true,
-    }), []);
-
-    // --- TISSUE EXPLOSION DATA ---
-    const tissueCount = 40;
-    const tissueData = useMemo(() => {
-        return new Array(tissueCount).fill(0).map(() => ({
-            dir: new THREE.Vector3(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5).normalize(),
-            speed: 2 + Math.random() * 3,
-            rotSpeed: (Math.random() - 0.5) * 5,
-            scale: 0.5 + Math.random() * 1.5,
-            delay: Math.random() * 0.5
-        }));
-    }, []);
 
     useFrame((state) => {
         const time = state.clock.getElapsedTime();
         const duration = 6.0;
 
-        // Animate Box
-        if (boxRef.current) {
-            // Subtle float
-            boxRef.current.position.y = Math.sin(time) * 0.1;
-            boxRef.current.rotation.y = Math.sin(time * 0.2) * 0.1;
+        // --- PHASE 1: THE "H" ZOOM (0s - 1.5s) ---
+        if (hRef.current) {
+            if (time < 1.5) {
+                // Zoom out effect: Start close (Z=10) -> End (Z=0)
+                const t = Math.pow(time / 1.5, 3); // Cubic ease for "Whoosh"
+                hRef.current.position.z = THREE.MathUtils.lerp(15, 0, t);
+
+                // Subtle rotation
+                hRef.current.rotation.y = THREE.MathUtils.lerp(Math.PI / 4, 0, t);
+            } else {
+                hRef.current.position.z = 0;
+                hRef.current.rotation.y = 0;
+            }
+        }
+
+        // --- PHASE 2: NAME EXPANSION (1.5s - 2.5s) ---
+        if (nameRef.current) {
+            if (time > 1.2) {
+                nameRef.current.visible = true;
+                // Slide out from behind H? Or just appear?
+                // Netflix style: The rest of letters fade/scale in
+                const t = THREE.MathUtils.smoothstep(time, 1.2, 2.0);
+                nameRef.current.scale.set(t, 1, 1);
+                nameRef.current.position.x = THREE.MathUtils.lerp(-1, 0.8, t); // Slide right
+            } else {
+                nameRef.current.visible = false;
+            }
+        }
+
+        // --- PHASE 3: THE WRAP (2.5s - 4.5s) ---
+        if (wrapperRef.current) {
+            const mat = wrapperRef.current.material as THREE.MeshPhysicalMaterial;
+
+            if (time > 2.5) {
+                // Appear
+                mat.opacity = THREE.MathUtils.smoothstep(time, 2.5, 3.0);
+
+                // Animate wrapping
+                const wrapT = THREE.MathUtils.smoothstep(time, 2.5, 4.0);
+
+                // Scale plane down to "Fit" the text
+                wrapperRef.current.scale.set(
+                    THREE.MathUtils.lerp(5, 1.2, wrapT),
+                    THREE.MathUtils.lerp(5, 0.5, wrapT),
+                    1
+                );
+
+                // Rotation twist
+                wrapperRef.current.rotation.z = THREE.MathUtils.lerp(Math.PI, 0, wrapT);
+
+                // "Tighten" position
+                wrapperRef.current.position.z = THREE.MathUtils.lerp(5, 0.2, wrapT);
+
+            }
         }
 
         if (time > duration) {
@@ -67,128 +98,56 @@ export function IntroScene({ onComplete }: { onComplete: () => void }) {
 
     return (
         <>
-            {/* Background & Atmosphere - White to Light Blue Gradient via Environment/Color */}
-            <color attach="background" args={['#f0f9ff']} /> {/* Very light baby blue/white */}
-            <fog attach="fog" args={['#f0f9ff', 5, 20]} />
+            {/* Cinematic Studio Lighting */}
+            <ambientLight intensity={0.5} />
+            <directionalLight position={[5, 10, 5]} intensity={2} />
+            <spotLight position={[-5, 0, 10]} angle={0.5} penumbra={1} intensity={10} color="#ffffff" />
 
-            {/* Lighting - Cinematic Studio */}
-            <ambientLight intensity={0.5} color="#ffffff" />
-            <directionalLight position={[5, 5, 5]} intensity={2} color="#ffffff" castShadow />
-            {/* Rim Light for drama */}
-            <spotLight position={[-5, 5, -5]} intensity={5} color="#0ea5e9" angle={0.5} penumbra={0.5} />
-            {/* Soft Fill */}
-            <pointLight position={[0, -5, 2]} intensity={1} color="#e0f2fe" />
-            <Environment preset="studio" blur={1} />
-
-            {/* --- THE TISSUE BOX (Centerpiece) --- */}
-            <Float speed={1} rotationIntensity={0.2} floatIntensity={0.2}>
-                <group ref={boxRef} position={[0, 0, 0]}>
-                    <mesh castShadow receiveShadow material={boxMaterial}>
-                        <boxGeometry args={[3, 1.5, 1.5]} /> {/* Landscape box */}
-                    </mesh>
-
-                    {/* Text on Front Face */}
-                    <Text
-                        font="https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuGKYMZs.woff"
-                        fontSize={0.25}
-                        color="#0f172a" // Slate-900 text
-                        position={[0, 0, 0.76]} // Slightly in front
-                        maxWidth={2.8}
-                        textAlign="center"
-                        letterSpacing={0.05}
-                        lineHeight={1.2}
+            <Center position={[0, 0, 0]}>
+                {/* THE "H" */}
+                <group ref={hRef}>
+                    <Text3D
+                        font={fontUrl}
+                        size={1.5}
+                        height={0.2}
+                        curveSegments={12}
+                        bevelEnabled
+                        bevelThickness={0.02}
+                        bevelSize={0.02}
+                        bevelOffset={0}
+                        bevelSegments={5}
+                        material={textMaterial}
+                        position={[-2.5, 0, 0]} // Offset to left so "H" centers roughly
                     >
-                        GOT AN ISSUE,
-                        GET A TISSUE
-                    </Text>
-
-                    {/* Brand Logo small below */}
-                    <Text
-                        font="https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuGKYMZs.woff"
-                        fontSize={0.1}
-                        color="#94a3b8" // Slate-400
-                        position={[0, -0.4, 0.76]}
-                        letterSpacing={0.1}
-                    >
-                        HANKY TALES
-                    </Text>
-
-                    {/* Opening on Top */}
-                    <mesh position={[0, 0.76, 0]} rotation={[-Math.PI / 2, 0, 0]} material={new THREE.MeshStandardMaterial({ color: "#e2e8f0" })}>
-                        <planeGeometry args={[2, 0.8]} />
-                    </mesh>
+                        H
+                    </Text3D>
                 </group>
-            </Float>
 
-            {/* --- EXPLODING TISSUES --- */}
-            <Instances range={tissueCount} material={tissueMaterial} geometry={new THREE.PlaneGeometry(1, 1, 16, 16)}>
-                {tissueData.map((data, i) => (
-                    <ExplodingTissue key={i} data={data} startOrigin={[0, 0.8, 0]} />
-                ))}
-            </Instances>
+                {/* THE REST: "anky Tales" */}
+                <group ref={nameRef} position={[0.8, 0, 0]} visible={false}>
+                    <Text3D
+                        font={fontUrl}
+                        size={1.5}
+                        height={0.2}
+                        curveSegments={12}
+                        bevelEnabled
+                        bevelThickness={0.02}
+                        bevelSize={0.02}
+                        bevelOffset={0}
+                        bevelSegments={5}
+                        material={textMaterial}
+                        position={[-2.5 + 1.2, 0, 0]} // Position relative to H
+                    >
+                        anky Tales
+                    </Text3D>
+                </group>
+            </Center>
 
-            {/* --- LUXURY PARTICLES (Droplets & Sparkles) --- */}
-            <Instances range={20} material={waterMaterial} geometry={new THREE.SphereGeometry(0.1, 16, 16)}>
-                {new Array(20).fill(0).map((_, i) => (
-                    <FloatingParticle key={i} speed={0.5} range={4} />
-                ))}
-            </Instances>
-
-            {/* Soft Cotton Clouds (Visual Filler) */}
-            <Cloud opacity={0.3} speed={0.1} bounds={[10, 2, 2]} segments={10} position={[0, -3, -5]} color="#f0f9ff" />
-            <Cloud opacity={0.2} speed={0.1} bounds={[10, 2, 2]} segments={10} position={[3, 2, -3]} color="#ffffff" />
-
+            {/* THE TISSUE WRAPPER */}
+            <mesh ref={wrapperRef} position={[0, 0, 5]} material={wrapperMaterial}>
+                {/* A large plane that shrinks to wrap */}
+                <planeGeometry args={[10, 5, 32, 32]} />
+            </mesh>
         </>
     );
-}
-
-function ExplodingTissue({ data, startOrigin }: { data: any, startOrigin: [number, number, number] }) {
-    const ref = useRef<THREE.Group>(null);
-    useFrame((state) => {
-        const time = state.clock.getElapsedTime();
-        const start = 0.5; // Delay explosion slightly
-
-        if (ref.current && time > start + data.delay) {
-            const t = time - (start + data.delay);
-
-            // Move outward spiraling
-            ref.current.position.x = startOrigin[0] + data.dir.x * t * data.speed + Math.sin(t * 2) * 0.5;
-            ref.current.position.y = startOrigin[1] + data.dir.y * t * data.speed + Math.cos(t * 2) * 0.5;
-            ref.current.position.z = startOrigin[2] + data.dir.z * t * data.speed;
-
-            // Rotate cloth-like
-            ref.current.rotation.x = t * data.rotSpeed;
-            ref.current.rotation.y = t * data.rotSpeed * 0.5;
-
-            // Scale up then flutter
-            const s = Math.min(t * 2, 1) * data.scale;
-            ref.current.scale.setScalar(s);
-        } else if (ref.current) {
-            ref.current.scale.setScalar(0);
-            ref.current.position.set(...startOrigin);
-        }
-    });
-
-    return <Instance ref={ref} />;
-}
-
-function FloatingParticle({ speed, range }: { speed: number, range: number }) {
-    const ref = useRef<THREE.Group>(null);
-    const initialPos = useMemo(() => new THREE.Vector3(
-        (Math.random() - 0.5) * range,
-        (Math.random() - 0.5) * range,
-        (Math.random() - 0.5) * range + 2
-    ), [range]);
-
-    useFrame((state) => {
-        const t = state.clock.getElapsedTime();
-        if (ref.current) {
-            ref.current.position.y = initialPos.y + Math.sin(t * speed + initialPos.x) * 0.5;
-            ref.current.position.x = initialPos.x;
-            ref.current.position.z = initialPos.z;
-            ref.current.rotation.x += 0.01;
-            ref.current.rotation.y += 0.01;
-        }
-    });
-    return <Instance ref={ref} />;
 }
