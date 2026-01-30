@@ -70,7 +70,7 @@ export function IntroOverlay({ onIntroComplete }: IntroOverlayProps) {
                                         transition={{ duration: 1.0, ease: "easeOut" }}
                                     >
                                         <h2 className="text-white font-serif text-5xl md:text-7xl tracking-wide italic text-center drop-shadow-[0_0_15px_rgba(255,255,255,0.8)]">
-                                            Get a Hanky.
+                                            Get a tissue!
                                         </h2>
                                         <p className="text-white/60 text-center mt-4 text-sm tracking-[0.3em] uppercase">Experience Softness</p>
                                     </motion.div>
