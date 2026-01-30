@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, Check, Leaf } from "lucide-react";
 import { HeroScene } from "@/components/3d/HeroScene";
 import { IntroOverlay } from "@/components/ui/IntroOverlay";
+import { ProductCarousel } from "@/components/home/ProductCarousel";
 import { useState, useEffect } from "react";
 
 export default function Home() {
@@ -36,7 +37,6 @@ export default function Home() {
       >
         <Navbar />
 
-        {/* Hero Section */}
         <section className="pt-32 pb-20 lg:pt-48 lg:pb-32 container-wide">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <motion.div
@@ -89,6 +89,9 @@ export default function Home() {
             </motion.div>
           </div>
         </section>
+
+        {/* New Scrolling Product Carousel */}
+        <ProductCarousel />
 
         {/* Story Section */}
         <section className="py-24 bg-white relative overflow-hidden">
