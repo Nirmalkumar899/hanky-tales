@@ -2,143 +2,184 @@
 
 import { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { Sparkles, Wireframe } from '@react-three/drei';
+import { Text, Float, Environment, SoftShadows } from '@react-three/drei';
 import * as THREE from 'three';
 
 export function IntroScene({ onComplete }: { onComplete: () => void }) {
-    const groupRef = useRef<THREE.Group>(null);
+    const tissueRef = useRef<THREE.Mesh>(null);
+    const textRef = useRef<THREE.Group>(null);
+    const particlesRef = useRef<THREE.Points>(null);
 
-    // High density plane for the "weave" look
-    const geometry = useMemo(() => new THREE.PlaneGeometry(8, 8, 128, 128), []);
-
-    // Material starts as wireframe-like (handled via props or separate mesh, 
-    // but standard material wireframe is easy to toggle/lerp opacity if we use two meshes)
-    // Let's use a single mesh and manipulate wireframe prop? No, can't anim wireframe linewidth easily in WebGL1/2 without shader.
-    // approach: Use a custom shader or a high-segment mesh with wireframe material overlay.
-    // Simpler approach: 
-    // 1. MeshPhysicalMaterial (The Tissue) - initially invisible/transparent
-    // 2. MeshBasicMaterial (The Fibers) - wireframe: true - initially visible
-
+    // --- 1. The Tissue Surface (Plush, Matte, Soft) ---
+    const tissueGeometry = useMemo(() => new THREE.PlaneGeometry(10, 10, 256, 256), []);
     const tissueMaterial = useMemo(() => new THREE.MeshPhysicalMaterial({
-        color: "#ffffff",
-        side: THREE.DoubleSide,
-        roughness: 0.5,
-        metalness: 0.1,
+        color: "#fafafa", // Ivory White
+        roughness: 0.9,   // Very matte (cloth)
+        metalness: 0.0,
+        clearcoat: 0.0,
+        sheen: 1.0,       // Fabric sheen
+        sheenRoughness: 0.5,
+        sheenColor: new THREE.Color("#ffffff"),
         transmission: 0,
-        thickness: 1,
         transparent: true,
-        opacity: 0,
+        opacity: 0,       // Starts invisible
+        side: THREE.DoubleSide
     }), []);
 
-    // We'll use a second mesh for the wireframe "Fibers"
-    const fiberMaterial = useMemo(() => new THREE.MeshBasicMaterial({
-        color: "#aaddff", // Cyan-ish for "Tech/Science" feel initially
-        wireframe: true,
+    // --- 2. The Floating Fibers (Particles) ---
+    // Create thousands of particles scattered in a volume
+    const particleCount = 2000;
+    const particleGeo = useMemo(() => {
+        const geo = new THREE.BufferGeometry();
+        const positions = new Float32Array(particleCount * 3);
+        const velocities = new Float32Array(particleCount * 3); // Store random drift
+
+        for (let i = 0; i < particleCount; i++) {
+            // Spread widely initially
+            positions[i * 3] = (Math.random() - 0.5) * 15;
+            positions[i * 3 + 1] = (Math.random() - 0.5) * 15;
+            positions[i * 3 + 2] = (Math.random() - 0.5) * 5 + 2; // In front of camera
+
+            velocities[i * 3] = (Math.random() - 0.5) * 0.02;
+            velocities[i * 3 + 1] = (Math.random() - 0.5) * 0.02;
+            velocities[i * 3 + 2] = (Math.random() - 0.5) * 0.02;
+        }
+        geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        // Store original/target positions if needed, but we'll just lerp them to 0,0,0
+        return geo;
+    }, []);
+
+    const particleMaterial = useMemo(() => new THREE.PointsMaterial({
+        color: "#ffffff",
+        size: 0.02,
         transparent: true,
-        opacity: 1,
+        opacity: 0.6,
+        sizeAttenuation: true,
+        blending: THREE.AdditiveBlending
     }), []);
 
-    const originalPositions = useMemo(() => {
-        return geometry.attributes.position.array.slice();
-    }, [geometry]);
 
     useFrame((state) => {
         const time = state.clock.getElapsedTime();
+        const duration = 6.0; // Slow, luxurious timing
 
-        // Animation Timeline:
-        // 0s - 2.0s: Micro View (Wireframe, close up, tech color)
-        // 2.0s - 4.5s: Zoom Out + Solidify (Wireframe fade out, Tissue fade in, White color)
+        // Timeline:
+        // 0s - 2.5s: Fibers drifting (The Air)
+        // 2.5s - 4.5s: Gathering & Surface Forming
+        // 4.5s - 6.0s: Brand Embossing
 
-        const duration = 5.0;
-        // const progress = Math.min(time / duration, 1); // Not used
+        // Fiber Physics
+        if (particlesRef.current) {
+            const positions = particlesRef.current.geometry.attributes.position;
 
-        // Zoom / Transformation Factor
-        const zoomFactor = THREE.MathUtils.smoothstep(time, 0.5, 4.0);
+            // Gather factor
+            const gatherStart = 2.0;
+            const gatherEnd = 4.5;
+            const gatherProgress = THREE.MathUtils.smoothstep(time, gatherStart, gatherEnd);
 
-        if (groupRef.current) {
-            // --- 1. Camera & Position (The Zoom) ---
-            // We simulate zoom by moving the mesh away from camera (or scaling it down visually)
-            // Start very close: Z = 0.5? 
-            const startZ = 1.5; // Very close to camera
-            const endZ = -2;   // Normal viewing distance
+            for (let i = 0; i < particleCount; i++) {
+                // Drift logic
+                // positions.array[i*3] += Math.sin(time + i) * 0.002; // Simple noise
 
-            // Non-linear zoom for dramatic effect
-            const currentZ = THREE.MathUtils.lerp(startZ, endZ, Math.pow(zoomFactor, 0.5));
-            groupRef.current.position.z = currentZ;
+                // Gather logic: Lerp towards center (partially) or just fade into the plane
+                // We want them to gently fall onto the plane Z=0
 
-            // --- 2. Wave Animation ---
-            // Micro view: High freq vibration (molecular?)
-            // Macro view: Gentle cloth wave
-            const positions = geometry.attributes.position;
-            const count = positions.count;
+                if (gatherProgress > 0) {
+                    // Move towards z=0 and center x,y
+                    const currentX = positions.getX(i);
+                    const currentY = positions.getY(i);
+                    const currentZ = positions.getZ(i);
 
-            for (let i = 0; i < count; i++) {
-                const ox = originalPositions[i * 3];
-                const oy = originalPositions[i * 3 + 1];
-
-                // Micro Vibration
-                const vibFreq = 20.0;
-                const vibAmp = (1 - zoomFactor) * 0.02;
-                const vibZ = Math.sin(ox * vibFreq + time * 10) * Math.cos(oy * vibFreq) * vibAmp;
-
-                // Macro Wave
-                const waveX = Math.sin(ox * 0.5 + time) * 0.2 * zoomFactor;
-                const waveY = Math.sin(oy * 0.3 + time) * 0.2 * zoomFactor;
-                const waveZ = Math.sin((ox + oy) * 0.5 + time) * 0.5 * zoomFactor;
-
-                positions.setZ(i, vibZ + waveZ);
+                    // Gentle suction to center
+                    positions.setX(i, THREE.MathUtils.lerp(currentX, currentX * 0.9, gatherProgress * 0.1));
+                    positions.setY(i, THREE.MathUtils.lerp(currentY, currentY * 0.9, gatherProgress * 0.1));
+                    positions.setZ(i, THREE.MathUtils.lerp(currentZ, 0, gatherProgress * 0.05));
+                }
             }
             positions.needsUpdate = true;
-            geometry.computeVertexNormals();
 
-            // --- 3. Material Transition ---
-            // Children[0] is Fiber (Wireframe)
-            // Children[1] is Tissue (Solid)
-            // We can access materials directly since we have the refs to them via useMemo
+            // Fade out particles as surface appears
+            (particlesRef.current.material as THREE.PointsMaterial).opacity = 0.6 * (1 - gatherProgress);
+        }
 
-            // Fade out fibers
-            fiberMaterial.opacity = 1 - Math.pow(zoomFactor, 2); // Fade out quickly
-            // Change fiber color from Tech Blue to White as it fades
-            fiberMaterial.color.lerpColors(new THREE.Color("#00ffff"), new THREE.Color("#ffffff"), zoomFactor);
+        // Surface Appearance
+        if (tissueRef.current) {
+            const surfaceProgress = THREE.MathUtils.smoothstep(time, 3.0, 5.0);
+            const mat = tissueRef.current.material as THREE.MeshPhysicalMaterial;
+            mat.opacity = surfaceProgress;
 
-            // Fade in tissue
-            tissueMaterial.opacity = zoomFactor;
+            // Gentle wave on surface (like a breath)
+            const geo = tissueRef.current.geometry;
+            const pos = geo.attributes.position;
+            // Optimization: Don't animate full high-res plane every frame if possible. 
+            // But for "breathing" effect we might need vertex shader or just minimal update.
+            // Let's stick to simple displacement map logic or skip geom update for performance if dense.
+            // Actually, just subtle rotation/float is enough for "Breathing"
+            tissueRef.current.rotation.x = -Math.PI / 6 + Math.sin(time * 0.5) * 0.02;
+        }
 
-            // Rotation
-            groupRef.current.rotation.z = time * 0.05;
-            // Tilt slightly as we zoom out
-            groupRef.current.rotation.x = THREE.MathUtils.lerp(0, Math.PI / 6, zoomFactor);
+        // Text Embossing
+        if (textRef.current) {
+            const embossStart = 4.0;
+            const embossEnd = 6.0;
+            const embossProgress = THREE.MathUtils.smoothstep(time, embossStart, embossEnd);
 
-            if (time > duration) {
-                onComplete();
-            }
+            // Move from inside the mesh (z = -0.1) to just protruding (z = 0.05)
+            textRef.current.position.z = THREE.MathUtils.lerp(-0.5, 0.1, embossProgress);
+            textRef.current.position.y = 0; // Centered
+
+            // Fade in opacity slightly sync
+            // Using MeshPhysicalMaterial on text too for embossing look
+        }
+
+        if (time > duration + 1) {
+            onComplete();
         }
     });
 
     return (
         <>
-            <ambientLight intensity={1} />
-            <directionalLight position={[5, 5, 5]} intensity={2} color="#ffffff" />
-            <spotLight position={[0, 0, 10]} angle={0.5} penumbra={1} intensity={1} />
+            <color attach="background" args={['#fdfbf7']} /> {/* Soft Ivory Background */}
 
-            <group ref={groupRef}>
-                {/* Wireframe Mesh (The Micro Fibers) */}
-                <mesh geometry={geometry} material={fiberMaterial} />
-
-                {/* Solid Mesh (The Tissue) */}
-                <mesh geometry={geometry} material={tissueMaterial} />
-            </group>
-
-            {/* Particles appearing at the end */}
-            <Sparkles
-                count={50}
-                scale={8}
-                size={3}
-                speed={0.2}
-                opacity={0.5}
-                color="#fff"
-                position={[0, 0, -3]}
+            {/* Soft Studio Lighting */}
+            <ambientLight intensity={1} color="#ffffff" />
+            <directionalLight
+                position={[5, 10, 5]}
+                intensity={1}
+                color="#fff5e6" // Warm light
+                castShadow
             />
+            <spotLight position={[-5, 5, 2]} intensity={0.5} angle={1} penumbra={1} color="#e6f0ff" /> // Cool fill
+            <Environment preset="studio" blur={1} />
+
+            {/* Particles (Fibers) */}
+            <points ref={particlesRef} geometry={particleGeo} material={particleMaterial} />
+
+            {/* The Tissue Surface */}
+            <mesh ref={tissueRef} geometry={tissueGeometry} material={tissueMaterial} position={[0, -1, 0]} rotation={[-Math.PI / 6, 0, 0]} receiveShadow />
+
+            {/* The Embossed Brand (Part of the same physical material theory) */}
+            <group ref={textRef} position={[0, 0, -0.5]} rotation={[-Math.PI / 6, 0, 0]}>
+                <Text
+                    font="/fonts/Inter-Thin.woff" // Fallback to default if not found
+                    fontSize={1.5}
+                    letterSpacing={0.1}
+                    lineHeight={1}
+                    color="#ffffff" // Same as tissue for embossed look
+                    anchorX="center"
+                    anchorY="middle"
+                >
+                    Hanky Tales
+                    <meshPhysicalMaterial
+                        attach="material"
+                        color="#fafafa" // Match tissue
+                        roughness={0.9}
+                        sheen={1}
+                        sheenColor={new THREE.Color("#ffffff")}
+                        side={THREE.DoubleSide}
+                    />
+                </Text>
+            </group>
         </>
     );
 }
