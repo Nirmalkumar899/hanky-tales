@@ -14,13 +14,13 @@ export function IntroOverlay({ onIntroComplete }: IntroOverlayProps) {
     const [textStage, setTextStage] = useState<'issue' | 'tissue'>('issue');
 
     useEffect(() => {
-        // Sync with 3D animation timeline (Total 6s)
-        // 0s-2.5s: Issue
-        // 2.5s: Transition start
-        // 2.5s: Change text to "Tissue"
+        // Sync with 3D animation timeline (Total 3s)
+        // 0s-1.2s: Issue
+        // 1.2s: Transition start
+        // 1.3s: Change text to "Tissue"
         const timer = setTimeout(() => {
             setTextStage('tissue');
-        }, 2500);
+        }, 1300);
 
         return () => clearTimeout(timer);
     }, []);
