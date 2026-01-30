@@ -42,8 +42,8 @@ export function IntroOverlay({ onIntroComplete }: IntroOverlayProps) {
                             transition={{ delay: 1, duration: 1 }}
                             className="absolute bottom-20 left-0 right-0 text-center pointer-events-none"
                         >
-                            <h2 className="text-white font-serif text-3xl tracking-widest uppercase opacity-80">Hanky Tales</h2>
-                            <p className="text-white/50 text-sm mt-2 tracking-wider">Experience Softness</p>
+                            <h2 className="text-white font-serif text-3xl tracking-widest uppercase opacity-90 mb-2">Hanky Tales</h2>
+                            <p className="text-white/80 text-lg tracking-wider font-light italic">"Got an issue? Get a tissue!"</p>
                         </motion.div>
                     </div>
                 </motion.div>
