@@ -11,6 +11,19 @@ interface IntroOverlayProps {
 
 export function IntroOverlay({ onIntroComplete }: IntroOverlayProps) {
     const [sceneCompleted, setSceneCompleted] = useState(false);
+    const [textStage, setTextStage] = useState<'issue' | 'tissue'>('issue');
+
+    useEffect(() => {
+        // Sync with 3D animation timeline (Total 6s)
+        // 0s-2.5s: Issue
+        // 2.5s: Transition start
+        // 2.5s: Change text to "Tissue"
+        const timer = setTimeout(() => {
+            setTextStage('tissue');
+        }, 2500);
+
+        return () => clearTimeout(timer);
+    }, []);
 
     useEffect(() => {
         if (sceneCompleted) {
@@ -29,24 +42,50 @@ export function IntroOverlay({ onIntroComplete }: IntroOverlayProps) {
                     initial={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 1.0 }}
-                    className="fixed inset-0 z-50 bg-black flex items-center justify-center overflow-hidden"
+                    className="fixed inset-0 z-50 bg-white flex items-center justify-center overflow-hidden"
                 >
                     <div className="w-full h-full relative">
-                        <Canvas shadows camera={{ position: [0, 0, 8], fov: 60 }}>
+                        <Canvas shadows camera={{ position: [0, 0, 5], fov: 60 }}>
                             <IntroScene onComplete={() => setSceneCompleted(true)} />
                         </Canvas>
 
-                        {/* Minimal Overlay Text */}
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ delay: 1, duration: 1 }}
-                            className="absolute bottom-10 w-full text-center pointer-events-none"
-                        >
-                            <h2 className="text-cyan-400 font-bold text-sm tracking-[0.5em] uppercase drop-shadow-[0_0_10px_rgba(0,255,255,0.8)]">
-                                Infinite Softness
-                            </h2>
-                        </motion.div>
+                        {/* Centered Text Overlay */}
+                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                            <AnimatePresence mode="wait">
+                                {textStage === 'issue' ? (
+                                    <motion.h1
+                                        key="issue"
+                                        initial={{ opacity: 0, scale: 0.8, y: 20 }}
+                                        animate={{
+                                            opacity: 1,
+                                            scale: 1,
+                                            y: 0,
+                                            x: [0, -2, 2, -2, 2, 0], // Shake effect
+                                        }}
+                                        exit={{ opacity: 0, scale: 1.2, filter: "blur(10px)" }}
+                                        transition={{ duration: 0.5 }}
+                                        className="text-4xl md:text-6xl font-black text-slate-800 tracking-tighter"
+                                    >
+                                        GOT AN ISSUE?
+                                    </motion.h1>
+                                ) : (
+                                    <motion.div
+                                        key="tissue"
+                                        className="text-center"
+                                        initial={{ opacity: 0, filter: "blur(20px)" }}
+                                        animate={{ opacity: 1, filter: "blur(0px)" }}
+                                        transition={{ duration: 1.5, ease: "easeOut" }}
+                                    >
+                                        <h1 className="text-5xl md:text-7xl font-light text-slate-900 tracking-wide mb-2">
+                                            Get a tissue.
+                                        </h1>
+                                        <p className="text-slate-400 text-sm tracking-[0.5em] uppercase">
+                                            Hanky Tales
+                                        </p>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </div>
                     </div>
                 </motion.div>
             )}
