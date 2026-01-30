@@ -42,10 +42,9 @@ export function IntroScene({ onComplete }: { onComplete: () => void }) {
             const transitionProgress = THREE.MathUtils.smoothstep(time, 2.0, 4.0);
 
             // 1. COLOR & MATERIAL TRANSITION
-            // Dark Charcoal (#334155) -> Pure White (#ffffff)
-            // Roughness 0.8 -> 0.5 (Fabric)
-            const startColor = new THREE.Color("#475569");
-            const endColor = new THREE.Color("#ffffff");
+            // User requested "Whole to be same" (Off-white/White throughout)
+            const startColor = new THREE.Color("#f8fafc"); // Off-white
+            const endColor = new THREE.Color("#ffffff"); // Pure white
 
             (mesh.material as THREE.MeshStandardMaterial).color.lerpColors(startColor, endColor, transitionProgress);
 
@@ -112,8 +111,8 @@ export function IntroScene({ onComplete }: { onComplete: () => void }) {
             <ambientLight intensity={0.5} />
             {/* Key Light */}
             <spotLight position={[5, 10, 5]} intensity={5} color="#ffffff" angle={0.5} penumbra={0.5} castShadow />
-            {/* Fill Light - Cool Blue for shadows */}
-            <pointLight position={[-5, -5, 5]} intensity={2} color="#e0f2fe" />
+            {/* Fill Light - Neutral for shadows (was Blue) */}
+            <pointLight position={[-5, -5, 5]} intensity={2} color="#f1f5f9" />
             {/* Rim Light - Warm for definition */}
             <spotLight position={[0, 5, -5]} intensity={10} color="#fff7ed" angle={1} />
 
