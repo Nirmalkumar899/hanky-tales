@@ -8,14 +8,14 @@ import * as THREE from 'three';
 export function IntroScene({ onComplete }: { onComplete: () => void }) {
     const meshRef = useRef<THREE.Mesh>(null);
 
-    // High-poly geometry for deformation
-    const geometry = useMemo(() => new THREE.IcosahedronGeometry(2, 64), []); // High detail
+    // High-poly geometry for deformation - Reduced base size
+    const geometry = useMemo(() => new THREE.IcosahedronGeometry(1.5, 64), []);
 
-    const material = useMemo(() => new THREE.MeshPhysicalMaterial({
-        color: "#334155", // Start: Dark Charcoal (Slate-700)
-        roughness: 0.8,
-        metalness: 0.1,
-        flatShading: false, // Smooth for the tissue look later
+    const material = useMemo(() => new THREE.MeshStandardMaterial({
+        color: "#475569", // Slate-600 (Slightly lighter charcoal for better shadow def)
+        roughness: 0.9, // Matte Paper feel
+        metalness: 0.0,
+        flatShading: false,
         side: THREE.DoubleSide,
     }), []);
 
@@ -39,25 +39,24 @@ export function IntroScene({ onComplete }: { onComplete: () => void }) {
             // 4.0s-6.0s: THE SOLUTION (Smooth, Floating, White)
 
             // Progress factor (0 = Crumpled, 1 = Smooth)
-            const transitionProgress = THREE.MathUtils.smoothstep(time, 2.5, 4.0);
+            const transitionProgress = THREE.MathUtils.smoothstep(time, 2.0, 4.0);
 
             // 1. COLOR & MATERIAL TRANSITION
             // Dark Charcoal (#334155) -> Pure White (#ffffff)
             // Roughness 0.8 -> 0.5 (Fabric)
-            const startColor = new THREE.Color("#334155"); // Dark stormy grey
+            const startColor = new THREE.Color("#475569");
             const endColor = new THREE.Color("#ffffff");
 
-            const currentColor = startColor.clone().lerp(endColor, transitionProgress);
-            (mesh.material as THREE.MeshPhysicalMaterial).color = currentColor;
+            (mesh.material as THREE.MeshStandardMaterial).color.lerpColors(startColor, endColor, transitionProgress);
 
             // Emissive for "Anger" phase?
             // (mesh.material as THREE.MeshPhysicalMaterial).emissive = new THREE.Color("#ff0000").multiplyScalar(1 - transitionProgress * 2);
 
             // 2. VERTEX DEFORMATION (The Crumple)
-            // Noise amplitude fades from High to 0
-            const noiseAmp = THREE.MathUtils.lerp(1.5, 0, transitionProgress);
+            // Reduced amplitude for "Paper Ball" look, not "Spiky Glitch"
+            const noiseAmp = THREE.MathUtils.lerp(0.5, 0, transitionProgress);
             // Noise speed
-            const speed = time * 3;
+            const speed = time * 2;
 
             for (let i = 0; i < count; i++) {
                 const ox = originalPositions[i * 3];
@@ -66,9 +65,10 @@ export function IntroScene({ onComplete }: { onComplete: () => void }) {
 
                 // Simple pseudo-random noise function based on position & time
                 // We use sin/cos waves to distort
-                const noiseX = Math.sin(ox * 5 + speed) * Math.cos(oy * 3 + speed);
-                const noiseY = Math.cos(oz * 4 + speed) * Math.sin(ox * 3 + speed);
-                const noiseZ = Math.sin(oy * 4 + speed) * Math.cos(oz * 5 + speed);
+                // Higher frequency noise for "Paper Wrinkles"
+                const noiseX = Math.sin(ox * 3 + speed) * Math.cos(oy * 4 + speed);
+                const noiseY = Math.cos(oz * 4 + speed) * Math.sin(ox * 4 + speed);
+                const noiseZ = Math.sin(oy * 3 + speed) * Math.cos(oz * 3 + speed);
 
                 // Apply noise
                 posAttribute.setXYZ(
@@ -81,16 +81,21 @@ export function IntroScene({ onComplete }: { onComplete: () => void }) {
             posAttribute.needsUpdate = true;
             mesh.geometry.computeVertexNormals();
 
-            // 3. ROTATION / SHAKE
+            // 3. ROTATION / SHAKE / SCALE
             if (transitionProgress < 1) {
                 // Shake vigorously
-                const shake = (1 - transitionProgress) * 0.1;
+                const shake = (1 - transitionProgress) * 0.05;
                 mesh.rotation.x += (Math.random() - 0.5) * shake;
                 mesh.rotation.y += (Math.random() - 0.5) * shake;
+                // Keep it smaller initially
+                mesh.scale.setScalar(0.8);
             } else {
                 // Float gently
                 mesh.rotation.x = Math.sin(time * 0.5) * 0.1;
                 mesh.rotation.y += 0.005;
+                // Float & Expand slightly as it smooths
+                const openScale = THREE.MathUtils.lerp(0.8, 1.2, (transitionProgress - 0.9) * 10); // Expand at end
+                mesh.scale.setScalar(Math.min(openScale, 1.2));
             }
         }
 
