@@ -1,121 +1,63 @@
 'use client';
 
-import { useRef, useMemo, useState } from 'react';
+import { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { Sphere, Icosahedron, Plane, Sparkles, PerspectiveCamera } from '@react-three/drei';
+import { Text, Instance, Instances, Environment, Float, Cloud } from '@react-three/drei';
 import * as THREE from 'three';
 
 export function IntroScene({ onComplete }: { onComplete: () => void }) {
-    const issueRef = useRef<THREE.Mesh>(null);
-    const tissueRef = useRef<THREE.Mesh>(null);
-    const happyRef = useRef<THREE.Mesh>(null);
-
-    // Animation State
-    // 0s - 2s: Issue Vibration
-    // 2s - 3s: Tissue Swoop & Wrap
-    // 3s - 5s: Transformation (Happy Ball + Confetti)
+    const boxRef = useRef<THREE.Group>(null);
 
     // --- MATERIALS ---
-    const issueMaterial = useMemo(() => new THREE.MeshStandardMaterial({
-        color: "#ff3333", // Angry Red
-        roughness: 0.6,
+    const boxMaterial = useMemo(() => new THREE.MeshStandardMaterial({
+        color: "#ffffff",
+        roughness: 0.2, // Glossy box
         metalness: 0.1,
-        flatShading: true,
     }), []);
 
     const tissueMaterial = useMemo(() => new THREE.MeshPhysicalMaterial({
         color: "#ffffff",
-        roughness: 0.8,
+        roughness: 0.8, // Matte Fabric
         metalness: 0.0,
         clearcoat: 0.0,
+        sheen: 1.0,
+        sheenColor: new THREE.Color("#e0f2fe"), // Baby blue sheen
         side: THREE.DoubleSide,
         transparent: true,
-        opacity: 0, // Starts invisible
+        opacity: 0.9,
     }), []);
 
-    const happyMaterial = useMemo(() => new THREE.MeshStandardMaterial({
-        color: "#ffd700", // Gold/Happy Yellow
-        roughness: 0.2,
-        metalness: 0.3,
-        emissive: "#ffaa00",
-        emissiveIntensity: 0.2,
+    const waterMaterial = useMemo(() => new THREE.MeshPhysicalMaterial({
+        color: "#ffffff",
+        roughness: 0.0,
+        metalness: 0.0,
+        transmission: 1.0, // Glass/Water
+        thickness: 1.0,
+        ior: 1.33,
+        transparent: true,
     }), []);
+
+    // --- TISSUE EXPLOSION DATA ---
+    const tissueCount = 40;
+    const tissueData = useMemo(() => {
+        return new Array(tissueCount).fill(0).map(() => ({
+            dir: new THREE.Vector3(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5).normalize(),
+            speed: 2 + Math.random() * 3,
+            rotSpeed: (Math.random() - 0.5) * 5,
+            scale: 0.5 + Math.random() * 1.5,
+            delay: Math.random() * 0.5
+        }));
+    }, []);
 
     useFrame((state) => {
         const time = state.clock.getElapsedTime();
-        const duration = 5.5;
+        const duration = 6.0;
 
-        // --- PHASE 1: THE ISSUE (0s - 3s) ---
-        if (issueRef.current) {
-            if (time < 3.0) {
-                // Vibrate angrily
-                issueRef.current.position.x = Math.sin(time * 50) * 0.05;
-                issueRef.current.position.y = Math.cos(time * 40) * 0.05;
-                issueRef.current.rotation.z = Math.sin(time * 20) * 0.1;
-
-                // Pulse scale
-                const pulse = 1 + Math.sin(time * 10) * 0.1;
-                issueRef.current.scale.setScalar(pulse);
-
-                // Spikes (simple rotation to show jagged edges)
-                issueRef.current.rotation.x += 0.05;
-                issueRef.current.rotation.y += 0.08;
-            } else {
-                // Shrink and disappear
-                issueRef.current.scale.setScalar(Math.max(0, 1 - (time - 3.0) * 5));
-                issueRef.current.visible = time < 3.2;
-            }
-        }
-
-        // --- PHASE 2: THE TISSUE HERO (1.5s - 3.5s) ---
-        if (tissueRef.current) {
-            const mat = tissueRef.current.material as THREE.MeshPhysicalMaterial;
-
-            if (time > 1.5 && time < 3.5) {
-                mat.opacity = 1;
-                // Swoop in from top right
-                const t = THREE.MathUtils.smoothstep(time, 1.5, 3.0);
-
-                // Position: Start (5, 5, 2) -> Target (0, 0, 0.5)
-                tissueRef.current.position.set(
-                    THREE.MathUtils.lerp(5, 0, t),
-                    THREE.MathUtils.lerp(5, 0, t),
-                    THREE.MathUtils.lerp(2, 0.5, t)
-                );
-
-                // Wrap animation (Bend geometry? Or just rotate violently to simulate wrapping)
-                tissueRef.current.rotation.z = time * 5;
-                tissueRef.current.rotation.x = time * 3;
-                tissueRef.current.scale.setScalar(THREE.MathUtils.lerp(1, 0.2, t)); // Shrink as it wraps
-
-                // Fade out after wrap
-                if (time > 3.0) mat.opacity = 1 - (time - 3.0) * 2;
-
-            } else if (time > 3.5) {
-                tissueRef.current.visible = false;
-            }
-        }
-
-        // --- PHASE 3: HAPPY RESOLUTION (3.0s+) ---
-        if (happyRef.current) {
-            if (time > 3.0) {
-                happyRef.current.visible = true;
-
-                // Pop out! (Bounce scale)
-                const t = Math.min((time - 3.0) * 3, 1);
-                // Elastic bounce
-                const elastic = (x: number) => {
-                    const c4 = (2 * Math.PI) / 3;
-                    return x === 0 ? 0 : x === 1 ? 1 : Math.pow(2, -10 * x) * Math.sin((x * 10 - 0.75) * c4) + 1;
-                };
-                const scale = elastic(t) * 1.5;
-                happyRef.current.scale.setScalar(scale);
-
-                // Gentle float
-                happyRef.current.position.y = Math.sin(time * 2) * 0.2;
-            } else {
-                happyRef.current.visible = false;
-            }
+        // Animate Box
+        if (boxRef.current) {
+            // Subtle float
+            boxRef.current.position.y = Math.sin(time) * 0.1;
+            boxRef.current.rotation.y = Math.sin(time * 0.2) * 0.1;
         }
 
         if (time > duration) {
@@ -125,61 +67,128 @@ export function IntroScene({ onComplete }: { onComplete: () => void }) {
 
     return (
         <>
-            <color attach="background" args={['#F0F4F8']} /> {/* Neutral Clean Blue-Grey BG */}
-            <ambientLight intensity={0.8} />
-            <directionalLight position={[5, 5, 5]} intensity={1.5} castShadow />
-            <directionalLight position={[-5, 5, 2]} intensity={0.5} color="#aaddff" />
+            {/* Background & Atmosphere - White to Light Blue Gradient via Environment/Color */}
+            <color attach="background" args={['#f0f9ff']} /> {/* Very light baby blue/white */}
+            <fog attach="fog" args={['#f0f9ff', 5, 20]} />
 
-            {/* THE ISSUE: Spiky Icosahedron */}
-            <mesh ref={issueRef} position={[0, 0, 0]} material={issueMaterial}>
-                {/* Detail=0 gives it a low-poly spiky look */}
-                <icosahedronGeometry args={[1.2, 0]} />
-            </mesh>
+            {/* Lighting - Cinematic Studio */}
+            <ambientLight intensity={0.5} color="#ffffff" />
+            <directionalLight position={[5, 5, 5]} intensity={2} color="#ffffff" castShadow />
+            {/* Rim Light for drama */}
+            <spotLight position={[-5, 5, -5]} intensity={5} color="#0ea5e9" angle={0.5} penumbra={0.5} />
+            {/* Soft Fill */}
+            <pointLight position={[0, -5, 2]} intensity={1} color="#e0f2fe" />
+            <Environment preset="studio" blur={1} />
 
-            {/* THE TISSUE HERO: Plane */}
-            <mesh ref={tissueRef} position={[5, 5, 5]} material={tissueMaterial}>
-                <planeGeometry args={[4, 4, 32, 32]} />
-            </mesh>
+            {/* --- THE TISSUE BOX (Centerpiece) --- */}
+            <Float speed={1} rotationIntensity={0.2} floatIntensity={0.2}>
+                <group ref={boxRef} position={[0, 0, 0]}>
+                    <mesh castShadow receiveShadow material={boxMaterial}>
+                        <boxGeometry args={[3, 1.5, 1.5]} /> {/* Landscape box */}
+                    </mesh>
 
-            {/* THE RESOLUTION: Smooth Sphere */}
-            <mesh ref={happyRef} position={[0, 0, 0]} visible={false} material={happyMaterial}>
-                <sphereGeometry args={[1, 64, 64]} />
-            </mesh>
+                    {/* Text on Front Face */}
+                    <Text
+                        font="https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuGKYMZs.woff"
+                        fontSize={0.25}
+                        color="#0f172a" // Slate-900 text
+                        position={[0, 0, 0.76]} // Slightly in front
+                        maxWidth={2.8}
+                        textAlign="center"
+                        letterSpacing={0.05}
+                        lineHeight={1.2}
+                    >
+                        GOT AN ISSUE,
+                        GET A TISSUE
+                    </Text>
 
-            {/* CONFETTI (Only appearing later) */}
-            <Confetti start={3.0} />
+                    {/* Brand Logo small below */}
+                    <Text
+                        font="https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuGKYMZs.woff"
+                        fontSize={0.1}
+                        color="#94a3b8" // Slate-400
+                        position={[0, -0.4, 0.76]}
+                        letterSpacing={0.1}
+                    >
+                        HANKY TALES
+                    </Text>
+
+                    {/* Opening on Top */}
+                    <mesh position={[0, 0.76, 0]} rotation={[-Math.PI / 2, 0, 0]} material={new THREE.MeshStandardMaterial({ color: "#e2e8f0" })}>
+                        <planeGeometry args={[2, 0.8]} />
+                    </mesh>
+                </group>
+            </Float>
+
+            {/* --- EXPLODING TISSUES --- */}
+            <Instances range={tissueCount} material={tissueMaterial} geometry={new THREE.PlaneGeometry(1, 1, 16, 16)}>
+                {tissueData.map((data, i) => (
+                    <ExplodingTissue key={i} data={data} startOrigin={[0, 0.8, 0]} />
+                ))}
+            </Instances>
+
+            {/* --- LUXURY PARTICLES (Droplets & Sparkles) --- */}
+            <Instances range={20} material={waterMaterial} geometry={new THREE.SphereGeometry(0.1, 16, 16)}>
+                {new Array(20).fill(0).map((_, i) => (
+                    <FloatingParticle key={i} speed={0.5} range={4} />
+                ))}
+            </Instances>
+
+            {/* Soft Cotton Clouds (Visual Filler) */}
+            <Cloud opacity={0.3} speed={0.1} bounds={[10, 2, 2]} segments={10} position={[0, -3, -5]} color="#f0f9ff" />
+            <Cloud opacity={0.2} speed={0.1} bounds={[10, 2, 2]} segments={10} position={[3, 2, -3]} color="#ffffff" />
+
         </>
     );
 }
 
-function Confetti({ start }: { start: number }) {
-    const groupRef = useRef<THREE.Group>(null);
+function ExplodingTissue({ data, startOrigin }: { data: any, startOrigin: [number, number, number] }) {
+    const ref = useRef<THREE.Group>(null);
     useFrame((state) => {
         const time = state.clock.getElapsedTime();
-        if (groupRef.current) {
-            groupRef.current.visible = time > start;
-            if (time > start) {
-                // Expand outward
-                const t = time - start;
-                groupRef.current.scale.setScalar(1 + t * 5);
-                groupRef.current.rotation.y += 0.05;
-            }
+        const start = 0.5; // Delay explosion slightly
+
+        if (ref.current && time > start + data.delay) {
+            const t = time - (start + data.delay);
+
+            // Move outward spiraling
+            ref.current.position.x = startOrigin[0] + data.dir.x * t * data.speed + Math.sin(t * 2) * 0.5;
+            ref.current.position.y = startOrigin[1] + data.dir.y * t * data.speed + Math.cos(t * 2) * 0.5;
+            ref.current.position.z = startOrigin[2] + data.dir.z * t * data.speed;
+
+            // Rotate cloth-like
+            ref.current.rotation.x = t * data.rotSpeed;
+            ref.current.rotation.y = t * data.rotSpeed * 0.5;
+
+            // Scale up then flutter
+            const s = Math.min(t * 2, 1) * data.scale;
+            ref.current.scale.setScalar(s);
+        } else if (ref.current) {
+            ref.current.scale.setScalar(0);
+            ref.current.position.set(...startOrigin);
         }
     });
 
-    // Create random particles
-    const particles = useMemo(() => {
-        return new Array(50).fill(0).map((_, i) => (
-            <mesh key={i} position={[
-                (Math.random() - 0.5) * 2,
-                (Math.random() - 0.5) * 2,
-                (Math.random() - 0.5) * 2
-            ]} rotation={[Math.random() * Math.PI, Math.random() * Math.PI, 0]}>
-                <planeGeometry args={[0.1, 0.1]} />
-                <meshBasicMaterial color={new THREE.Color().setHSL(Math.random(), 1, 0.5)} side={THREE.DoubleSide} />
-            </mesh>
-        ))
-    }, []);
+    return <Instance ref={ref} />;
+}
 
-    return <group ref={groupRef} visible={false}>{particles}</group>;
+function FloatingParticle({ speed, range }: { speed: number, range: number }) {
+    const ref = useRef<THREE.Group>(null);
+    const initialPos = useMemo(() => new THREE.Vector3(
+        (Math.random() - 0.5) * range,
+        (Math.random() - 0.5) * range,
+        (Math.random() - 0.5) * range + 2
+    ), [range]);
+
+    useFrame((state) => {
+        const t = state.clock.getElapsedTime();
+        if (ref.current) {
+            ref.current.position.y = initialPos.y + Math.sin(t * speed + initialPos.x) * 0.5;
+            ref.current.position.x = initialPos.x;
+            ref.current.position.z = initialPos.z;
+            ref.current.rotation.x += 0.01;
+            ref.current.rotation.y += 0.01;
+        }
+    });
+    return <Instance ref={ref} />;
 }
