@@ -1,10 +1,10 @@
 'use client';
 
-import { useRef, useMemo } from "react";
+import { useMemo } from "react";
 import Image from "next/image";
 import Link from 'next/link';
 
-// Mock Data (consistent with collection page)
+// Mock Data
 const products = [
     {
         id: 1,
@@ -51,33 +51,38 @@ const products = [
 ];
 
 export function ProductCarousel() {
-    // Duplicate items to form a complete ring (18 items total)
-    const items = useMemo(() => [...products, ...products, ...products], []);
-    const count = items.length; // 18
-    const radius = 800; // Radius of the carousel cylinder
+    // 14 items creates a perfect dense ring for this width
+    const items = useMemo(() => [...products, ...products, products[0], products[1]], []);
+    const count = items.length; // 14
+
+    // Tighter radius for more curvature
+    const radius = 600;
     const angleStep = 360 / count;
 
     return (
         <section className="py-24 bg-gradient-to-b from-white to-slate-50 overflow-hidden perspective-container">
             <style jsx>{`
                 .perspective-container {
-                    perspective: 2000px;
+                    /* Lower perspective = stronger 3D distortion (more "pop") */
+                    perspective: 1000px;
                 }
                 .carousel-scene {
                     width: 100%;
-                    height: 500px; /* Adjust based on card height */
+                    height: 500px;
                     position: relative;
                     transform-style: preserve-3d;
                     display: flex;
                     justify-content: center;
                     align-items: center;
+                    /* Tilt the whole scene slightly down for better view */
+                    transform: rotateX(5deg);
                 }
                 .carousel-ring {
                     position: relative;
                     width: 0;
                     height: 0;
                     transform-style: preserve-3d;
-                    animation: spin 60s linear infinite;
+                    animation: spin 50s linear infinite;
                 }
                 .carousel-item {
                     position: absolute;
@@ -87,13 +92,16 @@ export function ProductCarousel() {
                     height: 400px;
                     transform-origin: center center; 
                     transform-style: preserve-3d;
-                    /* Using margin to center the item on its origin pivot */
                     margin-left: -130px; 
                     margin-top: -200px;
+                    /* Backface hidden makes them disappear when looping behind */
                     backface-visibility: hidden;
+                    -webkit-backface-visibility: hidden;
+                    
+                    /* Reflection effect */
+                    -webkit-box-reflect: below 10px linear-gradient(transparent, transparent 70%, rgba(0,0,0,0.2));
                 }
                 
-                /* Pause on hover */
                 .carousel-scene:hover .carousel-ring {
                     animation-play-state: paused;
                 }
@@ -102,21 +110,14 @@ export function ProductCarousel() {
                     from { transform: rotateY(0deg); }
                     to { transform: rotateY(360deg); }
                 }
-
-                /* Hides the back-facing items for a cleaner loop effect */
-                .backface-hidden {
-                    backface-visibility: hidden; 
-                    -webkit-backface-visibility: hidden;
-                }
             `}</style>
 
-            <div className="container-wide mb-12 text-center">
+            <div className="container-wide mb-12 text-center relative z-10">
                 <span className="text-[var(--primary)] font-bold tracking-widest text-xs uppercase block mb-3">Shop The Collection</span>
                 <h2 className="text-3xl font-serif font-bold">Favorites in Rotation</h2>
             </div>
 
-            {/* Scale wrapper for responsiveness */}
-            <div className="w-full flex justify-center transform scale-[0.45] md:scale-[0.65] lg:scale-[0.85] xl:scale-100 transition-transform duration-500 origin-center">
+            <div className="w-full flex justify-center transform scale-[0.6] md:scale-[0.8] lg:scale-100 transition-transform duration-500 origin-center">
                 <div className="carousel-scene">
                     <div className="carousel-ring">
                         {items.map((product, index) => {
@@ -124,30 +125,35 @@ export function ProductCarousel() {
                             return (
                                 <div
                                     key={`${product.id}-${index}`}
-                                    className="carousel-item backface-hidden"
+                                    className="carousel-item"
                                     style={{
+                                        // Rotate then push out to radius
                                         transform: `rotateY(${angle}deg) translateZ(${radius}px)`
                                     }}
                                 >
                                     <Link href="/collection" className="block w-full h-full group">
-                                        <div className="w-full h-full bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden relative transition-transform duration-300 hover:scale-105">
+                                        <div className="w-full h-full bg-white rounded-3xl shadow-2xl overflow-hidden relative transition-all duration-300 group-hover:shadow-[0_20px_50px_rgba(0,0,0,0.2)]">
                                             {/* Image Area */}
-                                            <div className="absolute inset-0 p-6 bg-slate-50/50 flex items-center justify-center">
-                                                <div className="relative w-full h-full">
+                                            <div className="absolute inset-0 p-8 bg-gradient-to-br from-slate-50 to-white flex items-center justify-center">
+                                                <div className="relative w-full h-full transform transition-transform duration-700 group-hover:scale-110">
                                                     <Image
                                                         src={product.image}
                                                         alt={product.name}
                                                         fill
-                                                        className="object-contain drop-shadow-md group-hover:scale-110 transition-transform duration-700"
+                                                        className="object-contain drop-shadow-xl"
                                                     />
                                                 </div>
                                             </div>
 
-                                            {/* Content Overlay */}
-                                            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-6 pt-20 flex flex-col justify-end text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                                <span className="text-[10px] bg-white text-black px-2 py-0.5 rounded-full w-fit font-bold uppercase tracking-wider mb-2">{product.tag}</span>
-                                                <h3 className="font-serif text-xl font-medium leading-tight mb-1">{product.name}</h3>
-                                                <p className="font-medium opacity-90">${product.price}</p>
+                                            {/* Minimal Overlay */}
+                                            <div className="absolute top-0 left-0 w-full h-full p-6 flex flex-col justify-end">
+                                                <div className="bg-white/90 backdrop-blur-md rounded-2xl p-4 transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
+                                                    <h3 className="font-serif text-lg font-bold text-slate-800 leading-tight mb-1">{product.name}</h3>
+                                                    <div className="flex justify-between items-center">
+                                                        <p className="font-medium text-slate-600 text-sm">${product.price}</p>
+                                                        <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--primary)]">{product.tag}</span>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </Link>
@@ -156,9 +162,6 @@ export function ProductCarousel() {
                         })}
                     </div>
                 </div>
-            </div>
-            <div className="text-center mt-4 text-sm text-slate-400 italic animate-pulse">
-                Hover to minimize • Click to shop
             </div>
         </section>
     );
