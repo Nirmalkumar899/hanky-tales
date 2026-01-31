@@ -101,11 +101,13 @@ export const products = [
         basePrice: 5.00,
         currency: "₹",
         description: "Perfect for cookies, croissants, and treats.",
-        image: "/pack_flat_pastry_user.png",
+        image: "/pack_flat_12x10x4.png",
         variants: [
-            { size: "12x10x4", price: 5.00, image: "/pack_flat_pastry_user.png", type: "Standard" },
-            { size: "12x12x4", price: 6.00, image: "/pack_flat_pastry_user.png", type: "Standard" },
-            { size: "11x12x5", price: 6.50, image: "/pack_flat_pastry_user.png", type: "Standard" },
+            { size: "12x10x4", price: 5.00, image: "/pack_flat_12x10x4.png", type: "Standard" },
+            { size: "12x12x4", price: 6.00, image: "/pack_flat_12x12x4.png", type: "Standard" },
+            { size: "11x12x5", price: 6.50, image: "/pack_flat_11x12x5.png", type: "Standard" },
+            { size: "12x10x5", price: 6.50, image: "/pack_flat_12x10x5.png", type: "Standard" },
+            { size: "12x12x8", price: 7.50, image: "/pack_flat_12x12x8.png", type: "Standard" },
         ]
     },
     {
