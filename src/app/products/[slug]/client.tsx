@@ -19,11 +19,13 @@ export function ProductClient({ product }: { product: Product }) {
     }, [product]);
 
     if (!selectedVariant) {
-        return <div>No variants available</div>;
+        return <div className="p-12 text-center text-gray-500">Product options loading or unavailable.</div>;
     }
 
-    const price = selectedVariant.price || product.base_price;
-    const totalPrice = (price * quantity).toFixed(2);
+    // Safely calculate price, fallback to base_price, ensure numeric
+    const variantPrice = Number(selectedVariant.price) || Number(product.base_price) || 0;
+    const totalPrice = (variantPrice * quantity).toFixed(2);
+    const displayPrice = variantPrice.toFixed(2);
 
     return (
         <div className="min-h-screen bg-[#FAF9F6]">
