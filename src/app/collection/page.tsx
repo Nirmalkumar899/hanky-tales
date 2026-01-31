@@ -1,73 +1,19 @@
 'use client';
 
-import { Navbar } from "@/components/layout/navbar";
-import { Button } from "@/components/ui/button";
-import Image from "next/image";
-import { ArrowRight, ChevronDown, Facebook, Instagram } from "lucide-react";
-import Link from 'next/link';
-import { useState } from 'react';
-import { Canvas } from "@react-three/fiber";
-import { PackagingScene } from "@/components/3d/PackagingScene";
+import { useSearchParams } from 'next/navigation';
 
-const products = [
-    {
-        id: 1,
-        name: "Royal Silk Touch",
-        desc: "Ultra-soft 4-ply tissues infused with lotion for a premium feel.",
-        price: 32,
-        tag: "Luxury",
-        image: "/product-royal-silk.png",
-        meta: "Box of 120"
-    },
-    {
-        id: 2,
-        name: "Daily Comfort",
-        desc: "Reliable 2-ply softness for everyday family needs.",
-        price: 18,
-        tag: "Everyday",
-        image: "/product-daily-comfort.png",
-        meta: "Box of 200"
-    },
-    {
-        id: 3,
-        name: "Earth Wise Bamboo",
-        desc: "100% sustainable bamboo fibers. Unbleached and gentle.",
-        price: 24,
-        tag: "Eco-Friendly",
-        image: "/product-earth-wise.png",
-        meta: "Cube 90"
-    },
-    {
-        id: 4,
-        name: "Noir Cube",
-        desc: "Sleek cube design for modern interiors. 3-ply thickness.",
-        price: 28,
-        tag: "Luxury",
-        image: "/product-noir-cube.png",
-        meta: "Cube 80"
-    },
-    {
-        id: 5,
-        name: "Family Floral",
-        desc: "Brighten your home with our floral collection. Soft and strong.",
-        price: 20,
-        tag: "Everyday",
-        image: "/product-family-floral.png",
-        meta: "Box of 150"
-    },
-    {
-        id: 6,
-        name: "Eco Pocket Packs",
-        desc: "Biodegradable packaging for freshness on the go.",
-        price: 15,
-        tag: "Eco-Friendly",
-        image: "/product-eco-pocket.png",
-        meta: "Pack of 10"
-    },
-];
+// ... (existing imports, but make sure to remove unused ones if any)
 
 export default function Catalog() {
     const [activeCategory, setActiveCategory] = useState("All Products");
+    const searchParams = useSearchParams();
+    const searchQuery = searchParams.get('search')?.toLowerCase() || "";
+
+    const filteredProducts = products.filter(product => {
+        const matchesCategory = activeCategory === "All Products" || product.tag === activeCategory || (activeCategory === "Luxury Collection" && product.tag === "Luxury");
+        const matchesSearch = product.name.toLowerCase().includes(searchQuery) || product.desc.toLowerCase().includes(searchQuery);
+        return matchesCategory && matchesSearch;
+    });
 
     return (
         <div className="min-h-screen bg-[var(--background)]">
@@ -76,9 +22,15 @@ export default function Catalog() {
             {/* Header */}
             <header className="pt-32 pb-16 text-center container-wide">
                 <h1 className="mb-4">Our Collection</h1>
-                <p className="text-[var(--muted-foreground)] max-w-2xl mx-auto">
-                    Discover the perfect blend of softness and strength. From everyday essentials to eco-friendly innovations and luxurious textures.
-                </p>
+                {searchQuery ? (
+                    <p className="text-[var(--muted-foreground)]">
+                        Showing results for <span className="font-semibold text-slate-800">"{searchQuery}"</span>
+                    </p>
+                ) : (
+                    <p className="text-[var(--muted-foreground)] max-w-2xl mx-auto">
+                        Discover the perfect blend of softness and strength. From everyday essentials to eco-friendly innovations and luxurious textures.
+                    </p>
+                )}
             </header>
 
             <main className="container-wide grid grid-cols-1 md:grid-cols-12 gap-12 pb-24">
@@ -98,6 +50,27 @@ export default function Catalog() {
                                         {activeCategory === cat && <div className="w-1.5 h-1.5 bg-white rounded-full"></div>}
                                     </div>
                                     <span className={`text-sm ${activeCategory === cat ? 'font-medium text-[var(--foreground)]' : 'text-[var(--muted-foreground)] group-hover:text-[var(--foreground)]'}`}>
+                                        {cat}
+                                    </span>
+                                </label>
+                            ))}
+                        </div>
+                    </div>
+                </aside>
+
+                {/* Product Grid */}
+                <div className="md:col-span-9 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-12 gap-x-8">
+                    {filteredProducts.length > 0 ? (
+                        filteredProducts.map((product) => (
+                          <div key={product.id} className="group cursor-pointer">
+                              {/* Product Card Content Here (Same as before) -- Assuming the inner content is unchanged, I will just provide the mapping wrapper logic here. Wait, replace_file_content needs strict match. */
+                            /* I will need to be careful with the ReplaceContent.
+                             * I'll replace lines 69-100+ (basically the whole upper part of the component)
+                             * and create the `filteredProducts` variable.
+                             * BUT I can't easily replace the `products.map` part without matching it exactly.
+                             * The previous `view_file` stopped at line 100. I need to see the map function.
+                             */
+                            /* Let's view the map function first to be safe. */
                                         {cat}
                                     </span>
                                 </label>
@@ -126,11 +99,11 @@ export default function Catalog() {
                         </div>
 
                         <Button variant="outline" className="w-full mt-8 text-xs h-10">Reset Filters</Button>
-                    </div>
-                </aside>
+                    </div >
+                </aside >
 
-                {/* Product Grid */}
-                <div className="md:col-span-9">
+        {/* Product Grid */ }
+        < div className = "md:col-span-9" >
                     <div className="flex justify-between items-center mb-8 pb-4 border-b border-[var(--border)]">
                         <span className="text-sm text-[var(--muted-foreground)]">Showing <strong>{products.length}</strong> of <strong>24</strong> products</span>
                         <div className="flex items-center gap-3 text-sm">
@@ -140,31 +113,38 @@ export default function Catalog() {
                     </div>
 
                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {products.map(product => (
-                            <div key={product.id} className="group bg-white rounded-2xl p-6 shadow-sm hover:shadow-xl transition-all duration-300 border border-transparent hover:border-[var(--border)]">
-                                <div className="aspect-square relative mb-6 bg-[var(--background)] rounded-xl overflow-hidden flex items-center justify-center">
-                                    <span className={`absolute top-3 right-3 px-3 py-1 text-[10px] uppercase font-bold tracking-wider rounded-full z-10 
-                           ${product.tag === 'Luxury' ? 'bg-[#C6A87C] text-white' :
-                                            product.tag === 'Eco-Friendly' ? 'bg-[#D4E8D4] text-[#4A704A]' :
-                                                'bg-[#E6F0FF] text-[#4A6491]'}`}>
-                                        {product.tag}
-                                    </span>
-                                    <div className="w-48 h-48 relative transform group-hover:scale-105 transition-transform duration-500">
-                                        <Image src={product.image} alt={product.name} fill className="object-contain" />
+                        {filteredProducts.length > 0 ? (
+                            filteredProducts.map(product => (
+                                <div key={product.id} className="group bg-white rounded-2xl p-6 shadow-sm hover:shadow-xl transition-all duration-300 border border-transparent hover:border-[var(--border)]">
+                                    <div className="aspect-square relative mb-6 bg-[var(--background)] rounded-xl overflow-hidden flex items-center justify-center">
+                                        <span className={`absolute top-3 right-3 px-3 py-1 text-[10px] uppercase font-bold tracking-wider rounded-full z-10 
+                                ${product.tag === 'Luxury' ? 'bg-[#C6A87C] text-white' :
+                                                product.tag === 'Eco-Friendly' ? 'bg-[#D4E8D4] text-[#4A704A]' :
+                                                    'bg-[#E6F0FF] text-[#4A6491]'}`}>
+                                            {product.tag}
+                                        </span>
+                                        <div className="w-48 h-48 relative transform group-hover:scale-105 transition-transform duration-500">
+                                            <Image src={product.image} alt={product.name} fill className="object-contain" />
+                                        </div>
+                                    </div>
+
+                                    <h3 className="font-serif text-xl font-bold mb-2">{product.name}</h3>
+                                    <p className="text-sm text-[var(--muted-foreground)] mb-6 line-clamp-2 min-h-[40px]">{product.desc}</p>
+
+                                    <div className="flex items-center justify-between mt-auto">
+                                        <span className="text-xs font-medium uppercase tracking-wider text-[var(--muted-foreground)]">{product.meta}</span>
+                                        <div className="flex items-center gap-1 text-[var(--foreground)] text-sm font-medium hover:text-[var(--primary)] cursor-pointer group/link">
+                                            Details <ArrowRight className="w-3 h-3 group-hover/link:translate-x-1 transition-transform" />
+                                        </div>
                                     </div>
                                 </div>
-
-                                <h3 className="font-serif text-xl font-bold mb-2">{product.name}</h3>
-                                <p className="text-sm text-[var(--muted-foreground)] mb-6 line-clamp-2 min-h-[40px]">{product.desc}</p>
-
-                                <div className="flex items-center justify-between mt-auto">
-                                    <span className="text-xs font-medium uppercase tracking-wider text-[var(--muted-foreground)]">{product.meta}</span>
-                                    <div className="flex items-center gap-1 text-[var(--foreground)] text-sm font-medium hover:text-[var(--primary)] cursor-pointer group/link">
-                                        Details <ArrowRight className="w-3 h-3 group-hover/link:translate-x-1 transition-transform" />
-                                    </div>
-                                </div>
+                            ))
+                        ) : (
+                            <div className="col-span-full py-20 text-center">
+                                <h3 className="text-xl font-serif font-bold mb-2">No products found</h3>
+                                <p className="text-[var(--muted-foreground)]">Try adjusting your search or filters.</p>
                             </div>
-                        ))}
+                        )}
                     </div>
 
                     <div className="mt-16 flex justify-center gap-2">
@@ -174,51 +154,51 @@ export default function Catalog() {
                         <button className="w-10 h-10 rounded-md border border-[var(--border)] hover:bg-[var(--muted)] text-sm font-medium transition-colors">3</button>
                         <button className="h-10 px-4 rounded-md border border-[var(--border)] text-sm hover:bg-[var(--muted)] transition-colors">Next</button>
                     </div>
-                </div>
-            </main>
+                </div >
+            </main >
 
-            {/* New: Sustainability / Packaging Section */}
-            <section className="py-24 bg-[#FAF9F6] relative overflow-hidden">
+        {/* New: Sustainability / Packaging Section */ }
+        < section className = "py-24 bg-[#FAF9F6] relative overflow-hidden" >
 
-                <div className="container-wide grid lg:grid-cols-2 gap-16 items-center">
-                    <div className="order-2 lg:order-1 relative h-[500px]">
-                        {/* 3D Scene Injection */}
-                        <div className="absolute inset-0">
-                            <Canvas shadows camera={{ position: [0, 0, 6], fov: 50 }}>
-                                <PackagingScene />
-                            </Canvas>
-                        </div>
-                    </div>
-
-                    <div className="order-1 lg:order-2">
-                        <div className="inline-block px-3 py-1 rounded-full border border-[var(--primary)] text-[var(--primary)] text-xs font-bold tracking-wider uppercase mb-6 bg-white">
-                            New Arrival
-                        </div>
-                        <h2 className="mb-6">The Future of Food Packaging.</h2>
-                        <p className="text-lg text-[var(--muted-foreground)] mb-8">
-                            Sustainable, durable, and designed for the modern culinary experience. Our new range of biodegradable packaging elevates every meal, from takeout to table.
-                        </p>
-
-                        <div className="space-y-4 mb-8">
-                            {["Sugarcane Pulp Boxes", "Double-Wall Insulated Cups", "Kraft Paper Solutions"].map((item, i) => (
-                                <div key={i} className="flex items-center gap-3">
-                                    <div className="w-1.5 h-1.5 bg-[var(--marketing-green)] rounded-full"></div>
-                                    <span className="font-medium">{item}</span>
-                                </div>
-                            ))}
-                        </div>
-
-                        <Link href="/packaging">
-                            <Button size="lg" className="bg-[#1e1e1e] text-white hover:bg-black">
-                                Shop Packaging
-                            </Button>
-                        </Link>
+            <div className="container-wide grid lg:grid-cols-2 gap-16 items-center">
+                <div className="order-2 lg:order-1 relative h-[500px]">
+                    {/* 3D Scene Injection */}
+                    <div className="absolute inset-0">
+                        <Canvas shadows camera={{ position: [0, 0, 6], fov: 50 }}>
+                            <PackagingScene />
+                        </Canvas>
                     </div>
                 </div>
-            </section>
 
-            {/* Footer */}
-            <footer className="py-20 border-t border-[var(--border)] bg-white">
+                <div className="order-1 lg:order-2">
+                    <div className="inline-block px-3 py-1 rounded-full border border-[var(--primary)] text-[var(--primary)] text-xs font-bold tracking-wider uppercase mb-6 bg-white">
+                        New Arrival
+                    </div>
+                    <h2 className="mb-6">The Future of Food Packaging.</h2>
+                    <p className="text-lg text-[var(--muted-foreground)] mb-8">
+                        Sustainable, durable, and designed for the modern culinary experience. Our new range of biodegradable packaging elevates every meal, from takeout to table.
+                    </p>
+
+                    <div className="space-y-4 mb-8">
+                        {["Sugarcane Pulp Boxes", "Double-Wall Insulated Cups", "Kraft Paper Solutions"].map((item, i) => (
+                            <div key={i} className="flex items-center gap-3">
+                                <div className="w-1.5 h-1.5 bg-[var(--marketing-green)] rounded-full"></div>
+                                <span className="font-medium">{item}</span>
+                            </div>
+                        ))}
+                    </div>
+
+                    <Link href="/packaging">
+                        <Button size="lg" className="bg-[#1e1e1e] text-white hover:bg-black">
+                            Shop Packaging
+                        </Button>
+                    </Link>
+                </div>
+            </div>
+            </section >
+
+        {/* Footer */ }
+        < footer className = "py-20 border-t border-[var(--border)] bg-white" >
                 <div className="container-wide grid md:grid-cols-4 gap-12">
                     <div>
                         <div className="flex items-center gap-2 mb-6">
@@ -264,7 +244,7 @@ export default function Catalog() {
                         <span>Terms of Service</span>
                     </div>
                 </div>
-            </footer>
-        </div>
+            </footer >
+        </div >
     );
 }
