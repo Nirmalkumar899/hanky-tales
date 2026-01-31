@@ -20,7 +20,6 @@ export type Product = {
     currency: string;
     description?: string;
     image_url: string;
-    image_url: string;
     variants?: ProductVariant[];
     // Ensure no Date objects are leaked
 };
@@ -37,20 +36,6 @@ export async function getProducts(): Promise<Product[]> {
     try {
         const res = await client.query(`
       SELECT 
-        p.*,
-        json_agg(
-          json_build_object(
-            'id', v.id,
-            'size', v.size,
-            'price', v.price,
-            'image_url', v.image_url,
-            'type', v.type
-          )
-        ) as variants
-      FROM products p
-      LEFT JOIN product_variants v ON p.id = v.product_id
-      GROUP BY p.id
-      SELECT 
         p.id, p.name, p.tag, p.base_price, p.currency, p.description, p.image_url,
         json_agg(
           json_build_object(
@@ -64,9 +49,10 @@ export async function getProducts(): Promise<Product[]> {
       FROM products p
       LEFT JOIN product_variants v ON p.id = v.product_id
       GROUP BY p.id
+    `);
         return res.rows;
     } finally {
-        client.release();
+        if (client) client.release();
     }
 }
 
@@ -91,6 +77,6 @@ export async function getProduct(slug: string): Promise<Product | null> {
             variants: variantsRes.rows
         };
     } finally {
-        client.release();
+        if (client) client.release();
     }
 }
