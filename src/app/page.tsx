@@ -33,7 +33,7 @@ export default function Home() {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: showIntro ? 0 : 1 }}
-        transition={{ duration: 1, delay: 0.5 }}
+        transition={{ duration: 0.5, ease: "easeOut" }} // Instant fade in
       >
         <Navbar />
 
@@ -41,9 +41,8 @@ export default function Home() {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8 }}
+              animate={!showIntro ? { opacity: 1, y: 0 } : {}} // Trigger immediately when intro ends
+              transition={{ duration: 0.6, delay: 0.1 }} // Slight stagger
             >
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--accent)] text-xs font-medium tracking-wider uppercase mb-6 text-[var(--foreground)]">
                 <span className="w-1.5 h-1.5 rounded-full bg-[var(--primary)]"></span>
@@ -74,10 +73,9 @@ export default function Home() {
             </motion.div>
 
             <motion.div
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 1 }}
+              initial={{ opacity: 0, scale: 0.95 }} // Start slightly smaller
+              animate={!showIntro ? { opacity: 1, scale: 1 } : {}}
+              transition={{ duration: 0.8, ease: "easeOut" }}
               className="w-full"
             >
               <div className="relative w-full">

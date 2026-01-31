@@ -26,14 +26,15 @@ export function IntroScene({ onComplete }: { onComplete: () => void }) {
 
     useFrame((state) => {
         const time = state.clock.getElapsedTime();
-        const duration = 6.0;
+        const duration = 0.8; // User requested ~0.5s, giving slight buffer for smooth exit
 
         if (meshRef.current) {
             const mesh = meshRef.current;
             const posAttribute = mesh.geometry.attributes.position;
             const count = posAttribute.count;
 
-            const transitionProgress = THREE.MathUtils.smoothstep(time, 2.0, 4.0);
+            // Flash transition
+            const transitionProgress = THREE.MathUtils.smoothstep(time, 0.1, 0.6);
 
             // 1. MATERIAL COLOR
             const startColor = new THREE.Color("#f8fafc");
@@ -41,9 +42,9 @@ export function IntroScene({ onComplete }: { onComplete: () => void }) {
             (mesh.material as THREE.MeshStandardMaterial).color.lerpColors(startColor, endColor, transitionProgress);
 
             // 2. VERTEX DEFORMATION (Crumpled Ball -> Smooth Sphere)
-            // Noise amplitude fades from High to 0
+            // Fast decay
             const noiseAmp = THREE.MathUtils.lerp(1.2, 0, transitionProgress);
-            const speed = time * 2;
+            const speed = time * 8; // Faster noise speed for "flash" effect
 
             for (let i = 0; i < count; i++) {
                 const ox = originalPositions[i * 3];
@@ -68,18 +69,11 @@ export function IntroScene({ onComplete }: { onComplete: () => void }) {
 
             // 3. ROTATION / SHAKE / SCALE
             if (transitionProgress < 1) {
-                // Fast spin/shake
-                mesh.rotation.x += 0.02;
-                mesh.rotation.y += 0.05;
-                // Keep it compact
-                mesh.scale.setScalar(0.8);
+                // Flash scale up
+                mesh.rotation.y += 0.1;
+                mesh.scale.setScalar(THREE.MathUtils.lerp(0.8, 1.2, transitionProgress)); // Grow slightly
             } else {
-                // Gentle float
-                mesh.rotation.x = Math.sin(time * 0.5) * 0.05;
-                mesh.rotation.y += 0.005;
-                // Slight expansion
-                const openScale = THREE.MathUtils.lerp(0.8, 1.0, transitionProgress);
-                mesh.scale.setScalar(openScale);
+                mesh.scale.setScalar(1.2);
             }
         }
 
