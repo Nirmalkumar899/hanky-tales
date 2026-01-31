@@ -239,32 +239,27 @@ export const products = [
             { size: "50 Guests", price: 4500.00, image: "/pack_collection_set.png", type: "Standard" },
         ]
     },
-];
-name: "Premium Kraft Shopper",
-    tag: "Best Seller",
-        basePrice: 3.30,
-            currency: "₹",
-                description: "Eco-friendly premium kraft paper bags with twisted handles. Perfect for retail and gifting.",
-                    image: "/pack_paper_bag_handle.png",
-                        seoKeywords: [
-                            "paper bag", "kraft bag", "shopping bag", "retail bag", "gift bag", "twisted handle", "brown bag", "eco bag", "recycle bag", "carry bag",
-                            "tote", "merchandise bag", "boutique bag", "strong bag", "durable bag", "sustainable packaging", "biodegradable bag", "compostable bag",
-                            "branding bag", "custom bag", "wholesale bag", "bulk bag", "store supply", "packaging supply", "delivery bag", "takeout bag", "restaurant bag",
-                            "clothing store bag", "shoe store bag", "jewelry bag", "cosmetic bag", "favor bag", "party bag", "wedding favor", "event bag", "conference bag",
-                            "trade show bag", "goody bag", "loot bag", "swag bag", "sample bag", "market bag", "grocery bag", "lunch bag", "snack bag", "craft bag", "diy bag",
-                            "painting bag", "stamping bag", "plain paper bag", "natural paper bag"
-                        ],
-                            variants: [
-                                { size: "12x10x4", price: 3.30, image: "/pack_kraft_user_2.png", type: "With Handle" },
-                                { size: "12x12x4", price: 3.65, image: "/pack_kraft_user_3.png", type: "With Handle" },
-                                { size: "11x12x5", price: 3.80, image: "/pack_kraft_11x12x5.png", type: "With Handle" },
-                                { size: "12x10x8", price: 4.15, image: "/pack_kraft_user_1.png", type: "With Handle" },
-                                { size: "12x12x8", price: 4.55, image: "/pack_kraft_12x12x8.png", type: "With Handle" },
-                                { size: "12x16x8", price: 5.25, image: "/pack_kraft_user_4.png", type: "With Handle" },
-                                { size: "09x10x6", price: 3.40, image: "/pack_kraft_09x10x6.png", type: "With Handle" },
-                                { size: "8.5x8x5.5", price: 3.01, image: "/pack_kraft_8.5x8x5.5.png", type: "With Handle" },
-                                { size: "8.5x12x5.5", price: 3.50, image: "/pack_kraft_8.5x12x5.5.png", type: "With Handle" },
-                            ]
+    description: "Eco-friendly premium kraft paper bags with twisted handles. Perfect for retail and gifting.",
+    image: "/pack_paper_bag_handle.png",
+    seoKeywords: [
+        "paper bag", "kraft bag", "shopping bag", "retail bag", "gift bag", "twisted handle", "brown bag", "eco bag", "recycle bag", "carry bag",
+        "tote", "merchandise bag", "boutique bag", "strong bag", "durable bag", "sustainable packaging", "biodegradable bag", "compostable bag",
+        "branding bag", "custom bag", "wholesale bag", "bulk bag", "store supply", "packaging supply", "delivery bag", "takeout bag", "restaurant bag",
+        "clothing store bag", "shoe store bag", "jewelry bag", "cosmetic bag", "favor bag", "party bag", "wedding favor", "event bag", "conference bag",
+        "trade show bag", "goody bag", "loot bag", "swag bag", "sample bag", "market bag", "grocery bag", "lunch bag", "snack bag", "craft bag", "diy bag",
+        "painting bag", "stamping bag", "plain paper bag", "natural paper bag"
+    ],
+    variants: [
+        { size: "12x10x4", price: 3.30, image: "/pack_kraft_user_2.png", type: "With Handle" },
+        { size: "12x12x4", price: 3.65, image: "/pack_kraft_user_3.png", type: "With Handle" },
+        { size: "11x12x5", price: 3.80, image: "/pack_kraft_11x12x5.png", type: "With Handle" },
+        { size: "12x10x8", price: 4.15, image: "/pack_kraft_user_1.png", type: "With Handle" },
+        { size: "12x12x8", price: 4.55, image: "/pack_kraft_12x12x8.png", type: "With Handle" },
+        { size: "12x16x8", price: 5.25, image: "/pack_kraft_user_4.png", type: "With Handle" },
+        { size: "09x10x6", price: 3.40, image: "/pack_kraft_09x10x6.png", type: "With Handle" },
+        { size: "8.5x8x5.5", price: 3.01, image: "/pack_kraft_8.5x8x5.5.png", type: "With Handle" },
+        { size: "8.5x12x5.5", price: 3.50, image: "/pack_kraft_8.5x12x5.5.png", type: "With Handle" },
+    ]
     },
 {
     id: "double-wall-cafe-cup",
