@@ -8,12 +8,11 @@ export const products = [
         description: "Eco-friendly premium kraft paper bags with twisted handles. Perfect for retail and gifting.",
         image: "/pack_paper_bag_handle.png",
         variants: [
-            { size: "12x10x4", price: 3.30, image: "/pack_shopper_12x10x4.png", type: "With Handle" },
-            { size: "12x12x4", price: 3.65, image: "/pack_shopper_12x12x4.png", type: "With Handle" },
-            { size: "11x12x5", price: 3.80, image: "/pack_shopper_11x12x5.png", type: "With Handle" },
-            { size: "12x10x5", price: 4.00, image: "/pack_shopper_12x10x5.png", type: "With Handle" },
+            { size: "12x10x4", price: 3.30, image: "/pack_kraft_user_2.png", type: "With Handle" },
+            { size: "12x12x4", price: 3.65, image: "/pack_kraft_user_3.png", type: "With Handle" },
+            { size: "11x12x5", price: 3.80, image: "/pack_kraft_11x12x5.png", type: "With Handle" },
             { size: "12x10x8", price: 4.15, image: "/pack_kraft_user_1.png", type: "With Handle" },
-            { size: "12x12x8", price: 4.55, image: "/pack_shopper_12x12x8.png", type: "With Handle" },
+            { size: "12x12x8", price: 4.55, image: "/pack_kraft_12x12x8.png", type: "With Handle" },
             { size: "12x16x8", price: 5.25, image: "/pack_kraft_user_4.png", type: "With Handle" },
             { size: "09x10x6", price: 3.40, image: "/pack_kraft_09x10x6.png", type: "With Handle" },
             { size: "8.5x8x5.5", price: 3.01, image: "/pack_kraft_8.5x8x5.5.png", type: "With Handle" },
@@ -102,9 +101,11 @@ export const products = [
         basePrice: 5.00,
         currency: "₹",
         description: "Perfect for cookies, croissants, and treats.",
-        image: "/pack_flat_bag.png",
+        image: "/pack_flat_pastry_user.png",
         variants: [
-            { size: "Small", price: 5.00, image: "/pack_flat_bag.png", type: "Standard" },
+            { size: "12x10x4", price: 5.00, image: "/pack_flat_pastry_user.png", type: "Standard" },
+            { size: "12x12x4", price: 6.00, image: "/pack_flat_pastry_user.png", type: "Standard" },
+            { size: "11x12x5", price: 6.50, image: "/pack_flat_pastry_user.png", type: "Standard" },
         ]
     },
     {
