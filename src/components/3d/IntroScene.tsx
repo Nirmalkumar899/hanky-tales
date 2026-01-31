@@ -26,7 +26,7 @@ export function IntroScene({ onComplete }: { onComplete: () => void }) {
 
     useFrame((state) => {
         const time = state.clock.getElapsedTime();
-        const duration = 0.8; // User requested ~0.5s, giving slight buffer for smooth exit
+        const duration = 1.4; // User requested ~1.5s
 
         if (meshRef.current) {
             const mesh = meshRef.current;
@@ -34,7 +34,7 @@ export function IntroScene({ onComplete }: { onComplete: () => void }) {
             const count = posAttribute.count;
 
             // Flash transition
-            const transitionProgress = THREE.MathUtils.smoothstep(time, 0.1, 0.6);
+            const transitionProgress = THREE.MathUtils.smoothstep(time, 0.2, 1.0);
 
             // 1. MATERIAL COLOR
             const startColor = new THREE.Color("#f8fafc");

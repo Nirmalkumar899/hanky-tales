@@ -19,7 +19,7 @@ export function IntroOverlay({ onIntroComplete }: IntroOverlayProps) {
         // 0.2s: Change text to "Tissue"
         const timer = setTimeout(() => {
             setTextStage('tissue');
-        }, 200);
+        }, 600);
 
         return () => clearTimeout(timer);
     }, []);
