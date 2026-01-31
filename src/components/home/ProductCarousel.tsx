@@ -18,7 +18,7 @@ export function ProductCarousel() {
     // 14 items for a nice ring
     const activeItems = items.slice(0, 14);
     const count = activeItems.length;
-    const radius = 650;
+    const radius = 520;
     const angleStep = 360 / count;
 
     return (
@@ -28,7 +28,7 @@ export function ProductCarousel() {
                 .perspective-wrapper {
                     width: 100%;
                     height: 500px;
-                    perspective: 1200px; /* Increased perspective for less distortion */
+                    perspective: 2000px; /* Reduced zoom intensity */
                     display: flex;
                     justify-content: center;
                     align-items: center;
@@ -38,7 +38,6 @@ export function ProductCarousel() {
                     height: 100%;
                     position: relative;
                     transform-style: preserve-3d;
-                    /* Removed tilt to ensure clean z-sorting */
                     display: flex;
                     justify-content: center;
                     align-items: center;
@@ -55,12 +54,12 @@ export function ProductCarousel() {
                     position: absolute;
                     left: 50%;
                     top: 50%;
-                    width: 280px;
-                    height: 420px;
+                    width: 260px;
+                    height: 400px;
                     transform-origin: center center; 
                     transform-style: preserve-3d;
-                    margin-left: -140px; 
-                    margin-top: -210px;
+                    margin-left: -130px; 
+                    margin-top: -200px;
                     
                     /* IMPORTANT: Backface hidden handles the "behind" logic */
                     backface-visibility: hidden;
