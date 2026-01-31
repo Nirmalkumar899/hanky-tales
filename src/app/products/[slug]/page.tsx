@@ -41,7 +41,7 @@ export default function ProductPage() {
                                 src={selectedVariant.image || product.image}
                                 alt={product.name}
                                 fill
-                                className="object-cover"
+                                className="object-contain p-4"
                             />
                         </div>
                         <div className="grid grid-cols-4 gap-4">
@@ -74,8 +74,8 @@ export default function ProductPage() {
                                         key={v.size}
                                         onClick={() => setSelectedVariant(v)}
                                         className={`px-4 py-3 rounded-lg border text-sm font-medium transition-all ${selectedVariant.size === v.size
-                                                ? 'bg-black text-white border-black'
-                                                : 'bg-white text-slate-600 border-slate-200 hover:border-slate-400'
+                                            ? 'bg-black text-white border-black'
+                                            : 'bg-white text-slate-600 border-slate-200 hover:border-slate-400'
                                             }`}
                                     >
                                         {v.size}
