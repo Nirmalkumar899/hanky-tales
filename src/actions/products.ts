@@ -24,7 +24,14 @@ export type Product = {
 };
 
 export async function getProducts(): Promise<Product[]> {
-    const client = await pool.connect();
+    let client;
+    try {
+        client = await pool.connect();
+    } catch (e) {
+        console.error("Failed to connect to database:", e);
+        return [];
+    }
+
     try {
         const res = await client.query(`
       SELECT 
@@ -49,7 +56,14 @@ export async function getProducts(): Promise<Product[]> {
 }
 
 export async function getProduct(slug: string): Promise<Product | null> {
-    const client = await pool.connect();
+    let client;
+    try {
+        client = await pool.connect();
+    } catch (e) {
+        console.error("Failed to connect to database:", e);
+        return null;
+    }
+
     try {
         const res = await client.query('SELECT * FROM products WHERE id = $1', [slug]);
         if (res.rows.length === 0) return null;
