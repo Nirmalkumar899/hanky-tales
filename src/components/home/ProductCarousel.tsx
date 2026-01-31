@@ -108,7 +108,7 @@ export function ProductCarousel() {
 
                 @keyframes spin {
                     from { transform: rotateY(0deg); }
-                    to { transform: rotateY(360deg); }
+                    to { transform: rotateY(-360deg); }
                 }
             `}</style>
 
