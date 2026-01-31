@@ -5,10 +5,10 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { ArrowRight, ChevronDown, Facebook, Instagram } from "lucide-react";
 import Link from 'next/link';
-import { useState, Suspense } from 'react';
+import { useState, Suspense, useEffect } from 'react';
 import { Canvas } from "@react-three/fiber";
 import { PackagingScene } from "@/components/3d/PackagingScene";
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 
 const products = [
     {
@@ -70,7 +70,20 @@ const products = [
 function CollectionContent() {
     const [activeCategory, setActiveCategory] = useState("All Products");
     const searchParams = useSearchParams();
+    const router = useRouter();
     const searchQuery = searchParams.get('search')?.toLowerCase() || "";
+
+    // Reset category to "All Products" when a new search is performed to ensure results are visible
+    useEffect(() => {
+        if (searchQuery) {
+            setActiveCategory("All Products");
+        }
+    }, [searchQuery]);
+
+    const resetFilters = () => {
+        setActiveCategory("All Products");
+        router.push('/collection'); // Clear search params
+    };
 
     const filteredProducts = products.filter(product => {
         const matchesCategory = activeCategory === "All Products" || product.tag === activeCategory || (activeCategory === "Luxury Collection" && product.tag === "Luxury");
@@ -140,7 +153,13 @@ function CollectionContent() {
                             </div>
                         </div>
 
-                        <Button variant="outline" className="w-full mt-8 text-xs h-10">Reset Filters</Button>
+                        <Button
+                            variant="outline"
+                            className="w-full mt-8 text-xs h-10"
+                            onClick={resetFilters}
+                        >
+                            Reset Filters
+                        </Button>
                     </div>
                 </aside>
 
