@@ -88,7 +88,7 @@ export function ProductClient({ product }: { product: Product }) {
                                 <div>
                                     <p className="text-sm text-slate-500 mb-1">Price per unit (excl. GST)</p>
                                     <div className="text-3xl font-bold font-serif">
-                                        {product.currency}{price.toFixed(2)}
+                                        {product.currency}{displayPrice}
                                     </div>
                                 </div>
                                 <div className="text-right">
