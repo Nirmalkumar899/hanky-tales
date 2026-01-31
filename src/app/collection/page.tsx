@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { ArrowRight, ChevronDown, Facebook, Instagram } from "lucide-react";
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { Canvas } from "@react-three/fiber";
 import { PackagingScene } from "@/components/3d/PackagingScene";
 import { useSearchParams } from 'next/navigation';
@@ -67,7 +67,7 @@ const products = [
     },
 ];
 
-export default function Catalog() {
+function CollectionContent() {
     const [activeCategory, setActiveCategory] = useState("All Products");
     const searchParams = useSearchParams();
     const searchQuery = searchParams.get('search')?.toLowerCase() || "";
@@ -287,5 +287,13 @@ export default function Catalog() {
                 </div>
             </footer>
         </div>
+    );
+}
+
+export default function Catalog() {
+    return (
+        <Suspense fallback={<div className="min-h-screen bg-[var(--background)] flex items-center justify-center">Loading...</div>}>
+            <CollectionContent />
+        </Suspense>
     );
 }
