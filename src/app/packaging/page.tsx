@@ -1,19 +1,15 @@
 import { Navbar } from "@/components/layout/navbar";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
-import { Canvas } from "@react-three/fiber";
-// Remove direct import
-// import { PackagingScene } from "@/components/3d/PackagingScene"; 
 import { ArrowRight, ChevronDown } from "lucide-react";
 import Link from "next/link";
 import { getProducts } from "@/actions/products";
 import { Suspense } from "react";
 import dynamicLoader from "next/dynamic";
 
-// Dynamic import with SSR disabled
-const PackagingScene = dynamicLoader(() => import("@/components/3d/PackagingScene").then(mod => mod.PackagingScene), {
+const PackagingHero = dynamicLoader(() => import("@/components/packaging/PackagingHero").then(mod => mod.PackagingHero), {
     ssr: false,
-    loading: () => null
+    loading: () => <div className="h-[400px] w-full bg-slate-50 rounded-3xl animate-pulse" />
 });
 
 export const dynamic = 'force-dynamic';
@@ -38,14 +34,9 @@ export default async function PackagingPage() {
                         <Button size="lg" variant="outline">Request Sample</Button>
                     </div>
                 </div>
-                <div className="h-[400px] w-full relative">
-                    <div className="absolute inset-0 bg-gradient-to-tr from-[var(--marketing-green)]/10 to-transparent rounded-full blur-3xl"></div>
-                    <Canvas shadows camera={{ position: [0, 0, 5], fov: 50 }}>
-                        <Suspense fallback={null}>
-                            <PackagingScene />
-                        </Suspense>
-                    </Canvas>
-                </div>
+
+                {/* Dynamically imported visual component */}
+                <PackagingHero />
             </section>
 
             {/* Product Grid */}
