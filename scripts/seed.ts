@@ -17,10 +17,8 @@ async function seed() {
         id TEXT PRIMARY KEY,
         name TEXT NOT NULL,
         tag TEXT,
-        base_price NUMERIC NOT NULL,
         currency TEXT DEFAULT '₹',
         description TEXT,
-        image_url TEXT,
         image_url TEXT,
         created_at TIMESTAMPTZ DEFAULT NOW(),
         seo_keywords TEXT[]
