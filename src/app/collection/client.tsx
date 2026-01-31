@@ -129,7 +129,7 @@ export function CollectionClient({ products }: { products: Product[] }) {
                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {filteredProducts.length > 0 ? (
                             filteredProducts.map(product => (
-                                <div key={product.id} className="group bg-white rounded-2xl p-6 shadow-sm hover:shadow-xl transition-all duration-300 border border-transparent hover:border-[var(--border)]">
+                                <Link href={`/products/${product.id}`} key={product.id} className="group bg-white rounded-2xl p-6 shadow-sm hover:shadow-xl transition-all duration-300 border border-transparent hover:border-[var(--border)] block">
                                     <div className="aspect-square relative mb-6 bg-[var(--background)] rounded-xl overflow-hidden flex items-center justify-center">
                                         <span className={`absolute top-3 right-3 px-3 py-1 text-[10px] uppercase font-bold tracking-wider rounded-full z-10 
                                             ${product.tag === 'Luxury' ? 'bg-[#C6A87C] text-white' :
@@ -154,7 +154,7 @@ export function CollectionClient({ products }: { products: Product[] }) {
                                             Details <ArrowRight className="w-3 h-3 group-hover/link:translate-x-1 transition-transform" />
                                         </div>
                                     </div>
-                                </div>
+                                </Link>
                             ))
                         ) : (
                             <div className="col-span-full py-20 text-center">
