@@ -1,28 +1,18 @@
-'use client';
-
 import { Navbar } from "@/components/layout/navbar";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { Canvas } from "@react-three/fiber";
 import { PackagingScene } from "@/components/3d/PackagingScene";
 import { ArrowRight, ChevronDown } from "lucide-react";
-import { products } from "@/lib/product-data";
 import Link from "next/link";
+import { getProducts } from "@/actions/products";
+import { Suspense } from "react";
 
-const packagingProducts = [
-    { id: 1, name: "Premium Kraft Shopper", price: 0.45, tag: "Best Seller", image: "/pack_paper_bag_handle.png", desc: "Twisted handle kraft bag, robust and stylish." },
-    { id: 2, name: "Double-Wall Cafe Cup", price: 0.12, tag: "Hot & Cold", image: "/pack_paper_cup.png", desc: "Insulated design keeps drinks hot and hands cool." },
-    { id: 3, name: "Eco Burger Clamshell", price: 0.18, tag: "Biodegradable", image: "/pack_burger_box.png", desc: "Made from sugarcane pulp, fully compostable." },
-    { id: 4, name: "Fresh Salad Bowl", price: 0.35, tag: "Leak Proof", image: "/pack_salad_box.png", desc: "Clear lid for visibility, moisture resistant coating." },
-    { id: 5, name: "Sushi/Wrap Roll Box", price: 0.28, tag: "Window", image: "/pack_roll_box.png", desc: "Showcase your rolls with a crystal clear window." },
-    { id: 6, name: "French Fry Scoop", price: 0.08, tag: "Classic", image: "/pack_fries_tray.png", desc: "Stand-up design for easy snacking." },
-    { id: 7, name: "Heavy Duty Soup Bowl", price: 0.22, tag: "Microwavable", image: "/pack_paper_bowl.png", desc: "Thick walls prevent sogginess." },
-    { id: 8, name: "Flat Pastry Bag", price: 0.05, tag: "Grease Proof", image: "/pack_flat_bag.png", desc: "Perfect for cookies, croissants, and treats." },
-    { id: 9, name: "Takeout Food Box", price: 0.30, tag: "Foldable", image: "/pack_food_box.png", desc: "Secure locking mechanism for safe transport." },
-    { id: 10, name: "Event Starter Set", price: 45.00, tag: "Bundle", image: "/pack_collection_set.png", desc: "Complete kit for 50 guests." },
-];
+export const dynamic = 'force-dynamic';
 
-export default function PackagingPage() {
+export default async function PackagingPage() {
+    const products = await getProducts();
+
     return (
         <div className="min-h-screen bg-[var(--background)]">
             <Navbar />
@@ -58,33 +48,37 @@ export default function PackagingPage() {
                         </div>
                     </div>
 
-                    <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-x-8 gap-y-12">
-                        {products.map((product) => (
-                            <Link href={`/products/${product.id}`} key={product.id} className="group block">
-                                <div className="aspect-[4/5] relative bg-slate-50 rounded-2xl overflow-hidden mb-4">
-                                    <Image
-                                        src={product.image}
-                                        alt={product.name}
-                                        fill
-                                        className="object-cover group-hover:scale-105 transition-transform duration-500"
-                                    />
-                                    <div className="absolute top-3 left-3 bg-white/90 backdrop-blur px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider">
-                                        {product.tag}
+                    <Suspense fallback={<div>Loading products...</div>}>
+                        <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-x-8 gap-y-12">
+                            {products.map((product) => (
+                                <Link href={`/products/${product.id}`} key={product.id} className="group block">
+                                    <div className="aspect-[4/5] relative bg-slate-50 rounded-2xl overflow-hidden mb-4">
+                                        <Image
+                                            src={product.image_url || "/placeholder.png"}
+                                            alt={product.name}
+                                            fill
+                                            className="object-cover group-hover:scale-105 transition-transform duration-500"
+                                        />
+                                        {product.tag && (
+                                            <div className="absolute top-3 left-3 bg-white/90 backdrop-blur px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider">
+                                                {product.tag}
+                                            </div>
+                                        )}
                                     </div>
-                                </div>
-                                <div className="flex justify-between items-start">
-                                    <div>
-                                        <h3 className="font-bold text-lg mb-1 group-hover:text-[var(--primary)] transition-colors">{product.name}</h3>
-                                        <p className="text-sm text-[var(--muted-foreground)] line-clamp-2 mb-2">{product.description}</p>
+                                    <div className="flex justify-between items-start">
+                                        <div>
+                                            <h3 className="font-bold text-lg mb-1 group-hover:text-[var(--primary)] transition-colors">{product.name}</h3>
+                                            <p className="text-sm text-[var(--muted-foreground)] line-clamp-2 mb-2">{product.description}</p>
+                                        </div>
+                                        <span className="font-medium text-[var(--primary)]">{product.currency}{Number(product.base_price).toFixed(2)}</span>
                                     </div>
-                                    <span className="font-medium text-[var(--primary)]">{product.currency}{product.basePrice.toFixed(2)}</span>
-                                </div>
-                                <div className="text-sm font-bold text-[var(--primary)] mt-2 flex items-center group-hover:translate-x-1 transition-transform">
-                                    View Options <ArrowRight className="w-3 h-3 ml-1" />
-                                </div>
-                            </Link>
-                        ))}
-                    </div>
+                                    <div className="text-sm font-bold text-[var(--primary)] mt-2 flex items-center group-hover:translate-x-1 transition-transform">
+                                        View Options <ArrowRight className="w-3 h-3 ml-1" />
+                                    </div>
+                                </Link>
+                            ))}
+                        </div>
+                    </Suspense>
                 </div>
             </section>
         </div>
