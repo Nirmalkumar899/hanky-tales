@@ -6,6 +6,8 @@ import Image from "next/image";
 import { Canvas } from "@react-three/fiber";
 import { PackagingScene } from "@/components/3d/PackagingScene";
 import { ArrowRight, ChevronDown } from "lucide-react";
+import { products } from "@/lib/product-data";
+import Link from "next/link";
 
 const packagingProducts = [
     { id: 1, name: "Premium Kraft Shopper", price: 0.45, tag: "Best Seller", image: "/pack_paper_bag_handle.png", desc: "Twisted handle kraft bag, robust and stylish." },
@@ -57,8 +59,8 @@ export default function PackagingPage() {
                     </div>
 
                     <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-x-8 gap-y-12">
-                        {packagingProducts.map((product) => (
-                            <div key={product.id} className="group">
+                        {products.map((product) => (
+                            <Link href={`/products/${product.id}`} key={product.id} className="group block">
                                 <div className="aspect-[4/5] relative bg-slate-50 rounded-2xl overflow-hidden mb-4">
                                     <Image
                                         src={product.image}
@@ -72,15 +74,15 @@ export default function PackagingPage() {
                                 </div>
                                 <div className="flex justify-between items-start">
                                     <div>
-                                        <h3 className="font-bold text-lg mb-1">{product.name}</h3>
-                                        <p className="text-sm text-[var(--muted-foreground)] line-clamp-2 mb-2">{product.desc}</p>
+                                        <h3 className="font-bold text-lg mb-1 group-hover:text-[var(--primary)] transition-colors">{product.name}</h3>
+                                        <p className="text-sm text-[var(--muted-foreground)] line-clamp-2 mb-2">{product.description}</p>
                                     </div>
-                                    <span className="font-medium">${product.price.toFixed(2)}</span>
+                                    <span className="font-medium text-[var(--primary)]">{product.currency}{product.basePrice.toFixed(2)}</span>
                                 </div>
-                                <button className="text-sm font-bold text-[var(--primary)] mt-2 flex items-center group-hover:translate-x-1 transition-transform">
-                                    Add to Cart <ArrowRight className="w-3 h-3 ml-1" />
-                                </button>
-                            </div>
+                                <div className="text-sm font-bold text-[var(--primary)] mt-2 flex items-center group-hover:translate-x-1 transition-transform">
+                                    View Options <ArrowRight className="w-3 h-3 ml-1" />
+                                </div>
+                            </Link>
                         ))}
                     </div>
                 </div>
