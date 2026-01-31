@@ -36,7 +36,7 @@ export default async function PackagingPage() {
                 </div>
 
                 {/* Dynamically imported visual component */}
-                <PackagingHero />
+                {/* <PackagingHero /> */}
             </section>
 
             {/* Product Grid */}
