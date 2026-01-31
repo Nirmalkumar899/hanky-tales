@@ -1,6 +1,7 @@
 'use client';
 
 import Image from "next/image";
+import Link from 'next/link';
 import { Navbar } from "@/components/layout/navbar";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
@@ -57,7 +58,9 @@ export default function Home() {
               </p>
               <div className="flex flex-wrap gap-4">
                 <Button size="lg">Explore Collection</Button>
-                <Button size="lg" variant="ghost">Our Story</Button>
+                <Link href="/our-story">
+                  <Button size="lg" variant="ghost">Our Story</Button>
+                </Link>
               </div>
 
               <div className="mt-12 flex gap-8 text-sm font-medium text-[var(--muted-foreground)]">

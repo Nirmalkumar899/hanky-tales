@@ -18,7 +18,7 @@ export function Navbar() {
 
                 {/* Desktop Links */}
                 <div className="hidden lg:flex items-center gap-8">
-                    <Link href="/story" className="text-sm font-medium hover:text-[var(--primary)] transition-colors">
+                    <Link href="/our-story" className="text-sm font-medium hover:text-[var(--primary)] transition-colors">
                         Our Story
                     </Link>
                     <Link href="/collection" className="text-sm font-medium hover:text-[var(--primary)] transition-colors">
