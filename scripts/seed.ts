@@ -2,14 +2,14 @@ import { pool } from '../src/lib/db';
 import { products } from '../src/lib/product-data';
 
 async function seed() {
-    const client = await pool.connect();
+  const client = await pool.connect();
 
-    try {
-        console.log('🌱 Starting seed...');
+  try {
+    console.log('🌱 Starting seed...');
 
-        // 1. Create Tables
-        console.log('Creating tables...');
-        await client.query(`
+    // 1. Create Tables
+    console.log('Creating tables...');
+    await client.query(`
       DROP TABLE IF EXISTS product_variants;
       DROP TABLE IF EXISTS products;
 
@@ -21,7 +21,9 @@ async function seed() {
         currency TEXT DEFAULT '₹',
         description TEXT,
         image_url TEXT,
-        created_at TIMESTAMPTZ DEFAULT NOW()
+        image_url TEXT,
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        seo_keywords TEXT[]
       );
 
       CREATE TABLE product_variants (
@@ -35,46 +37,47 @@ async function seed() {
       );
     `);
 
-        // 2. Insert Data
-        console.log('Inserting data...');
+    // 2. Insert Data
+    console.log('Inserting data...');
 
-        for (const product of products) {
-            // Insert Product
-            await client.query(`
-        INSERT INTO products (id, name, tag, base_price, currency, description, image_url)
-        VALUES ($1, $2, $3, $4, $5, $6, $7)
+    for (const product of products) {
+      // Insert Product
+      await client.query(`
+        INSERT INTO products (id, name, tag, base_price, currency, description, image_url, seo_keywords)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
       `, [
-                product.id,
-                product.name,
-                product.tag,
-                product.basePrice,
-                product.currency,
-                product.description,
-                product.image // Mapping 'image' to 'image_url' for DB consistency
-            ]);
+        product.id,
+        product.name,
+        product.tag,
+        product.basePrice,
+        product.currency,
+        product.description,
+        product.image,
+        product.seoKeywords
+      ]);
 
-            // Insert Variants
-            for (const variant of product.variants) {
-                await client.query(`
+      // Insert Variants
+      for (const variant of product.variants) {
+        await client.query(`
           INSERT INTO product_variants (product_id, size, price, image_url, type)
           VALUES ($1, $2, $3, $4, $5)
         `, [
-                    product.id,
-                    variant.size,
-                    variant.price,
-                    variant.image,
-                    variant.type
-                ]);
-            }
-        }
-
-        console.log('✅ Seed completed successfully!');
-    } catch (error) {
-        console.error('❌ Errors seeding database:', error);
-    } finally {
-        client.release();
-        pool.end();
+          product.id,
+          variant.size,
+          variant.price,
+          variant.image,
+          variant.type
+        ]);
+      }
     }
+
+    console.log('✅ Seed completed successfully!');
+  } catch (error) {
+    console.error('❌ Errors seeding database:', error);
+  } finally {
+    client.release();
+    pool.end();
+  }
 }
 
 seed();

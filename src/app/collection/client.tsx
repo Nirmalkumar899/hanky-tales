@@ -35,8 +35,12 @@ export function CollectionClient({ products }: { products: Product[] }) {
         // Safety check for text fields
         const name = product.name?.toLowerCase() || "";
         const desc = product.description?.toLowerCase() || "";
+        const keywords = product.seo_keywords || [];
 
-        const matchesSearch = name.includes(searchQuery) || desc.includes(searchQuery);
+        const matchesSearch = name.includes(searchQuery) ||
+            desc.includes(searchQuery) ||
+            keywords.some(k => k.toLowerCase().includes(searchQuery));
+
         return matchesCategory && matchesSearch;
     });
 

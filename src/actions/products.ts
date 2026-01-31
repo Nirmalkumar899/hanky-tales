@@ -21,6 +21,7 @@ export type Product = {
     description?: string;
     image_url: string;
     variants?: ProductVariant[];
+    seo_keywords?: string[];
     // Ensure no Date objects are leaked
 };
 
@@ -36,7 +37,7 @@ export async function getProducts(): Promise<Product[]> {
     try {
         const res = await client.query(`
       SELECT 
-        p.id, p.name, p.tag, p.base_price, p.currency, p.description, p.image_url,
+        p.id, p.name, p.tag, p.base_price, p.currency, p.description, p.image_url, p.seo_keywords,
         json_agg(
           json_build_object(
             'id', v.id,
@@ -66,7 +67,7 @@ export async function getProduct(slug: string): Promise<Product | null> {
     }
 
     try {
-        const res = await client.query('SELECT id, name, tag, base_price, currency, description, image_url FROM products WHERE id = $1', [slug]);
+        const res = await client.query('SELECT id, name, tag, base_price, currency, description, image_url, seo_keywords FROM products WHERE id = $1', [slug]);
         if (res.rows.length === 0) return null;
 
         const product = res.rows[0];
