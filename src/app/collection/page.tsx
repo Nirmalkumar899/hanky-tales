@@ -6,6 +6,8 @@ import Image from "next/image";
 import { ArrowRight, ChevronDown, Facebook, Instagram } from "lucide-react";
 import Link from 'next/link';
 import { useState } from 'react';
+import { Canvas } from "@react-three/fiber";
+import { PackagingScene } from "@/components/3d/PackagingScene";
 
 const products = [
     {
@@ -175,18 +177,43 @@ export default function Catalog() {
                 </div>
             </main>
 
-            {/* Partner Section */}
-            <section className="bg-[#1A1A1A] py-20 text-white">
-                <div className="container-wide flex flex-col md:flex-row items-center justify-between gap-10">
-                    <div>
-                        <h2 className="text-white mb-4">Partner with Hanky Tales</h2>
-                        <p className="text-white/60 text-lg max-w-xl">
-                            Looking for bulk orders or custom branding solutions for your business? We provide premium manufacturing services tailored to your needs.
-                        </p>
+            {/* New: Sustainability / Packaging Section */}
+            <section className="py-24 bg-[#FAF9F6] relative overflow-hidden">
+
+                <div className="container-wide grid lg:grid-cols-2 gap-16 items-center">
+                    <div className="order-2 lg:order-1 relative h-[500px]">
+                        {/* 3D Scene Injection */}
+                        <div className="absolute inset-0">
+                            <Canvas shadows camera={{ position: [0, 0, 6], fov: 50 }}>
+                                <PackagingScene />
+                            </Canvas>
+                        </div>
                     </div>
-                    <Button className="bg-white text-black hover:bg-white/90 whitespace-nowrap">
-                        Request Wholesale Quote
-                    </Button>
+
+                    <div className="order-1 lg:order-2">
+                        <div className="inline-block px-3 py-1 rounded-full border border-[var(--primary)] text-[var(--primary)] text-xs font-bold tracking-wider uppercase mb-6 bg-white">
+                            New Arrival
+                        </div>
+                        <h2 className="mb-6">The Future of Food Packaging.</h2>
+                        <p className="text-lg text-[var(--muted-foreground)] mb-8">
+                            Sustainable, durable, and designed for the modern culinary experience. Our new range of biodegradable packaging elevates every meal, from takeout to table.
+                        </p>
+
+                        <div className="space-y-4 mb-8">
+                            {["Sugarcane Pulp Boxes", "Double-Wall Insulated Cups", "Kraft Paper Solutions"].map((item, i) => (
+                                <div key={i} className="flex items-center gap-3">
+                                    <div className="w-1.5 h-1.5 bg-[var(--marketing-green)] rounded-full"></div>
+                                    <span className="font-medium">{item}</span>
+                                </div>
+                            ))}
+                        </div>
+
+                        <Link href="/packaging">
+                            <Button size="lg" className="bg-[#1e1e1e] text-white hover:bg-black">
+                                Shop Packaging
+                            </Button>
+                        </Link>
+                    </div>
                 </div>
             </section>
 

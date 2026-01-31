@@ -24,6 +24,9 @@ export function Navbar() {
                     <Link href="/collection" className="text-sm font-medium hover:text-[var(--primary)] transition-colors">
                         Collection
                     </Link>
+                    <Link href="/packaging" className="text-sm font-medium hover:text-[var(--primary)] transition-colors">
+                        Packaging
+                    </Link>
                     <Link href="/sustainability" className="text-sm font-medium hover:text-[var(--primary)] transition-colors">
                         Sustainability
                     </Link>
