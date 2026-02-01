@@ -4,7 +4,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
 
-export async function approveUser(userId: string) {
+export async function approveUser(userId: string, _formData: FormData) {
     const supabase = createClient()
 
     // Authorization check: ideally check if current user is admin
@@ -38,7 +38,8 @@ export async function approveUser(userId: string) {
         .eq('id', userId)
 
     if (error) {
-        return { error: error.message }
+        console.error('Error approving user:', error)
+        return
     }
 
     revalidatePath('/974038500admin')
