@@ -36,12 +36,12 @@ export default async function PackagingPage() {
                         >
                             Shop Wholesale
                         </Link>
-                        <Link
+                        <a
                             href="mailto:hankytales@gmail.com"
                             className="inline-flex items-center justify-center rounded-full font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border-2 border-[var(--foreground)] bg-transparent hover:bg-[var(--foreground)] hover:text-white h-14 px-10 text-lg"
                         >
                             Request Sample
-                        </Link>
+                        </a>
                     </div>
                 </div>
 
