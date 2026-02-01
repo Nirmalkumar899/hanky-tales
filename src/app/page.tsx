@@ -6,7 +6,6 @@ import { Navbar } from "@/components/layout/navbar";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, Check, Leaf } from "lucide-react";
-import { HeroScene } from "@/components/3d/HeroScene";
 import { IntroOverlay } from "@/components/ui/IntroOverlay";
 import { ProductCarousel } from "@/components/home/ProductCarousel";
 import { useState, useEffect } from "react";
@@ -46,11 +45,21 @@ export default function Home() {
               transition={{ duration: 0.8, ease: "easeOut" }}
               className="w-full"
             >
-              <div className="relative w-full h-[70vh] min-h-[600px]">
-                <div className="absolute inset-0 bg-gradient-to-tr from-[#6B8E6F]/10 to-transparent rounded-3xl -rotate-1 blur-3xl z-0"></div>
-                <div className="relative z-10 w-full h-full">
-                  <HeroScene />
-                </div>
+              <div className="relative w-full h-[85vh] min-h-[600px] rounded-3xl overflow-hidden shadow-2xl">
+                <video
+                  className="absolute inset-0 w-full h-full object-cover"
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  poster="/fabric-texture.png"
+                >
+                  <source src="https://res.cloudinary.com/deyprglur/video/upload/v1769954807/Premium_Tissue_Ad_Video_Generated_zln9g6.mp4" type="video/mp4" />
+                  Your browser does not support the video tag.
+                </video>
+
+                {/* Overlay for text readability if we add text later, or just a subtle vignette */}
+                <div className="absolute inset-0 bg-black/10"></div>
               </div>
             </motion.div>
           </div>
