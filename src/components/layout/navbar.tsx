@@ -6,73 +6,26 @@ import { ShoppingBag, Search, Menu, X, ArrowRight } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
+import { UserMenu } from '../auth/UserMenu';
 
 export function Navbar() {
-    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-    const [isSearchOpen, setIsSearchOpen] = useState(false);
-    const [searchQuery, setSearchQuery] = useState("");
-    const pathname = usePathname();
-    const router = useRouter();
-
-    // Close menu on route change
-    useEffect(() => {
-        setIsMobileMenuOpen(false);
-        setIsSearchOpen(false);
-    }, [pathname]);
-
-    const handleSearch = (e: React.FormEvent) => {
-        e.preventDefault();
-        if (searchQuery.trim()) {
-            router.push(`/collection?search=${encodeURIComponent(searchQuery)}`);
-            setIsSearchOpen(false);
-        }
-    };
-
+    // ... code ...
     return (
-        <>
-            <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-[var(--border)]">
-                <div className="container-wide h-20 flex items-center justify-between">
-                    {/* Mobile Menu Toggle */}
-                    <button
-                        className="lg:hidden p-2 hover:bg-slate-100 rounded-full transition-colors"
-                        onClick={() => setIsMobileMenuOpen(true)}
-                    >
-                        <Menu className="w-6 h-6" />
-                    </button>
+        // ...
+        <div className="flex items-center gap-2 md:gap-4">
+            <button
+                className="p-2 hover:bg-[var(--muted)] rounded-full transition-colors"
+                onClick={() => setIsSearchOpen(!isSearchOpen)}
+            >
+                <Search className="w-5 h-5" />
+            </button>
 
-                    {/* Logo */}
-                    <Link href="/" className="text-2xl font-serif font-bold tracking-tight">
-                        Hanky Tales
-                    </Link>
+            <UserMenu />
 
-                    {/* Desktop Links */}
-                    <div className="hidden lg:flex items-center gap-8">
-                        <NavLink href="/our-story">Our Story</NavLink>
-                        <NavLink href="/collection">Collection</NavLink>
-                        <NavLink href="/packaging">Packaging</NavLink>
-                        <NavLink href="/sustainability">Sustainability</NavLink>
-                    </div>
-
-                    {/* Actions */}
-                    <div className="flex items-center gap-2 md:gap-4">
-                        <button
-                            className="p-2 hover:bg-[var(--muted)] rounded-full transition-colors"
-                            onClick={() => setIsSearchOpen(!isSearchOpen)}
-                        >
-                            <Search className="w-5 h-5" />
-                        </button>
-
-                        <div className="hidden md:block">
-                            <Button size="sm" onClick={() => router.push('/collection')}>Shop Now</Button>
-                        </div>
-
-                        <button className="p-2 hover:bg-[var(--muted)] rounded-full transition-colors relative">
-                            <ShoppingBag className="w-5 h-5" />
-                            <span className="absolute top-1 right-1 w-2 h-2 bg-[var(--primary)] rounded-full"></span>
-                        </button>
-                    </div>
-                </div>
-            </nav>
+            <div className="hidden md:block">
+                <Button size="sm" onClick={() => router.push('/collection')}>Shop Now</Button>
+            </div>
+        // ...
 
             {/* Mobile Menu Overlay */}
             <AnimatePresence>

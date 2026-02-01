@@ -31,7 +31,9 @@ export default async function PackagingPage() {
                     </p>
                     <div className="flex gap-4">
                         <Button size="lg">Shop Wholesale</Button>
-                        <Button size="lg" variant="outline">Request Sample</Button>
+                        <Link href="mailto:hankytales@gmail.com">
+                            <Button size="lg" variant="outline">Request Sample</Button>
+                        </Link>
                     </div>
                 </div>
 
