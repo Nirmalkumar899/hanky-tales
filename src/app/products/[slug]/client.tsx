@@ -17,14 +17,33 @@ const productThemes: Record<string, { bg: string, text: string, accent: string, 
     'velvet-touch-lavender-mist': { bg: '#F3E6FF', text: '#5D3F6A', accent: '#9D7BB0', secondary: '#EBD9FD' },
 };
 
+// Video map for specific products
+const productVideos: Record<string, string> = {
+    'velvet-touch-blush-pink': 'https://res.cloudinary.com/deyprglur/video/upload/v1769943516/Create_an_add_1080p_202602011620_vzmkel.mov'
+};
+
 export function ProductClient({ product }: { product: Product }) {
     // Default to first variant if available
     const [selectedVariant, setSelectedVariant] = useState(product.variants?.[0]);
     const [quantity, setQuantity] = useState(100); // Wholesale default
 
+    // Media logic
+    const videoUrl = productVideos[product.id];
+    const [activeMedia, setActiveMedia] = useState<{ type: 'image' | 'video', url: string }>({
+        type: videoUrl ? 'video' : 'image',
+        url: videoUrl || product.image_url || '/placeholder.png'
+    });
+
     useEffect(() => {
         if (product.variants && product.variants.length > 0) {
             setSelectedVariant(product.variants[0]);
+        }
+        // Check for video on mount (or product change) and defaulting to it
+        const vUrl = productVideos[product.id];
+        if (vUrl) {
+            setActiveMedia({ type: 'video', url: vUrl });
+        } else {
+            setActiveMedia({ type: 'image', url: product.image_url || '/placeholder.png' });
         }
     }, [product]);
 
@@ -39,7 +58,11 @@ export function ProductClient({ product }: { product: Product }) {
     const currentPrice = selectedVariant ? Number(selectedVariant.price) : Number(product.base_price);
     const totalPrice = (currentPrice * quantity).toFixed(2);
     const displayPrice = currentPrice.toFixed(2);
-    const displayImage = selectedVariant?.image_url || product.image_url || '/placeholder.png';
+
+    // Aggregate distinct images for thumbnails
+    const baseImage = product.image_url || '/placeholder.png';
+    const variantImages = product.variants?.map(v => v.image_url).filter(Boolean) as string[] || [];
+    const allImages = Array.from(new Set([baseImage, ...variantImages]));
 
     return (
         <div className="min-h-screen transition-colors duration-700" style={{ backgroundColor: theme.bg, color: theme.text }}>
@@ -53,29 +76,56 @@ export function ProductClient({ product }: { product: Product }) {
                 <div className="grid lg:grid-cols-2 gap-12 lg:gap-24 relative">
                     {/* Image Section */}
                     <div className="space-y-6 sticky top-32 self-start">
-                        <div className="aspect-square relative rounded-[3rem] overflow-hidden shadow-xl transition-all duration-700" style={{ backgroundColor: theme.secondary }}>
-                            <Image
-                                src={displayImage}
-                                alt={product.name}
-                                fill
-                                className="object-cover p-2" // using object-cover for full bleed look or contain if transparency
-                            />
+                        <div className="aspect-square relative rounded-[3rem] overflow-hidden shadow-xl transition-all duration-700 bg-white" style={{ backgroundColor: theme.secondary }}>
+                            {activeMedia.type === 'video' ? (
+                                <video
+                                    src={activeMedia.url}
+                                    className="w-full h-full object-cover"
+                                    autoPlay
+                                    muted
+                                    loop
+                                    playsInline
+                                />
+                            ) : (
+                                <Image
+                                    src={activeMedia.url}
+                                    alt={product.name}
+                                    fill
+                                    className="object-cover p-2"
+                                />
+                            )}
                         </div>
 
-                        {product.variants && product.variants.length > 1 && (
-                            <div className="grid grid-cols-4 gap-4">
-                                {product.variants.slice(0, 4).map((v, i) => (
-                                    <div
-                                        key={i}
-                                        className={`aspect-square relative rounded-2xl overflow-hidden cursor-pointer border-2 transition-all ${selectedVariant?.size === v.size ? 'scale-105 shadow-md' : 'opacity-70 hover:opacity-100'}`}
-                                        style={{ borderColor: selectedVariant?.size === v.size ? theme.accent : 'transparent', backgroundColor: theme.secondary }}
-                                        onClick={() => setSelectedVariant(v)}
-                                    >
-                                        <Image src={v.image_url || product.image_url || ''} alt={v.size} fill className="object-cover" />
+                        {/* Thumbnails */}
+                        <div className="grid grid-cols-5 gap-4">
+                            {/* Video Thumbnail */}
+                            {videoUrl && (
+                                <div
+                                    className={`aspect-square relative rounded-2xl overflow-hidden cursor-pointer border-2 transition-all flex items-center justify-center bg-black/5 ${activeMedia.type === 'video' ? 'scale-105 shadow-md ring-2 ring-offset-2' : 'opacity-70 hover:opacity-100'}`}
+                                    style={{ borderColor: activeMedia.type === 'video' ? theme.accent : 'transparent' }}
+                                    onClick={() => setActiveMedia({ type: 'video', url: videoUrl })}
+                                >
+                                    <div className="w-8 h-8 rounded-full bg-white/40 flex items-center justify-center backdrop-blur-md shadow-lg group-hover:bg-white/60 transition-colors">
+                                        <div className="w-0 h-0 border-t-[6px] border-t-transparent border-l-[10px] border-l-white border-b-[6px] border-b-transparent ml-1"></div>
                                     </div>
-                                ))}
-                            </div>
-                        )}
+                                </div>
+                            )}
+
+                            {/* Image Thumbnails */}
+                            {allImages.slice(0, 4).map((img, i) => (
+                                <div
+                                    key={i}
+                                    className={`aspect-square relative rounded-2xl overflow-hidden cursor-pointer border-2 transition-all ${activeMedia.type === 'image' && activeMedia.url === img ? 'scale-105 shadow-md ring-2 ring-offset-2' : 'opacity-70 hover:opacity-100'}`}
+                                    style={{
+                                        borderColor: activeMedia.type === 'image' && activeMedia.url === img ? theme.accent : 'transparent',
+                                        backgroundColor: theme.secondary
+                                    }}
+                                    onClick={() => setActiveMedia({ type: 'image', url: img })}
+                                >
+                                    <Image src={img} alt={`View ${i + 1}`} fill className="object-cover" />
+                                </div>
+                            ))}
+                        </div>
                     </div>
 
                     {/* Details Section */}
