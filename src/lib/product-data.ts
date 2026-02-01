@@ -304,4 +304,135 @@ export const products = [
             { size: "100 Pulls", price: 149.00, image: "/products/facial-tissue-lavender.png", type: "Standard" }
         ]
     },
+    // Event Starter Collection
+    {
+        id: "event-starter-plate-dinner",
+        name: "Eco-Chic Dinner Plates",
+        tag: "Event Starter",
+        basePrice: 499.00,
+        currency: "₹",
+        description: "Premium biodegradable dinner plates with earthy textures and gold foil 'Hanky Tales' detailing. Sturdy enough for heavy meals.",
+        image: "/products/event-plate-dinner.png",
+        seoKeywords: ["dinner plates", "disposable plates", "eco friendly plates", "party plates", "hanky tales", "wedding plates"],
+        variants: [
+            { size: "Pack of 25", price: 499.00, image: "/products/event-plate-dinner.png", type: "Standard" }
+        ]
+    },
+    {
+        id: "event-starter-plate-dessert",
+        name: "Eco-Chic Dessert Plates",
+        tag: "Event Starter",
+        basePrice: 399.00,
+        currency: "₹",
+        description: "Perfectly sized for cakes and appetizers. Matches our dinner plates for a cohesive table setting.",
+        image: "/products/event-plate-dessert.png",
+        seoKeywords: ["dessert plates", "cake plates", "small plates", "hanky tales", "party supplies"],
+        variants: [
+            { size: "Pack of 25", price: 399.00, image: "/products/event-plate-dessert.png", type: "Standard" }
+        ]
+    },
+    {
+        id: "event-starter-cup-hot",
+        name: "Signature Hot Cups",
+        tag: "Event Starter",
+        basePrice: 299.00,
+        currency: "₹",
+        description: "Double-wall insulation keeps beverages hot and hands cool. Minimalist white design with elegant branding.",
+        image: "/products/event-cup-hot.png",
+        seoKeywords: ["coffee cups", "hot cups", "paper cups", "hanky tales", "tea cups"],
+        variants: [
+            { size: "Pack of 25", price: 299.00, image: "/products/event-cup-hot.png", type: "Standard" }
+        ]
+    },
+    {
+        id: "event-starter-cup-cold",
+        name: "Crystal Clear Cold Cups",
+        tag: "Event Starter",
+        basePrice: 349.00,
+        currency: "₹",
+        description: "Refreshing cold drink cups made from plant-based plastics. perfect for iced teas and juices.",
+        image: "/products/event-cup-cold.png",
+        seoKeywords: ["cold cups", "plastic cups", "party cups", "hanky tales", "juice cups"],
+        variants: [
+            { size: "Pack of 25", price: 349.00, image: "/products/event-cup-cold.png", type: "Standard" }
+        ]
+    },
+    {
+        id: "event-starter-napkin-cocktail",
+        name: "Blush Cocktail Napkins",
+        tag: "Event Starter",
+        basePrice: 199.00,
+        currency: "₹",
+        description: "Soft, embossed beverage napkins in a stunning blush pink. Adds a pop of color to your bar or appetizer station.",
+        image: "/products/event-napkin-cocktail.png",
+        seoKeywords: ["cocktail napkins", "pink napkins", "bar napkins", "hanky tales", "party napkins"],
+        variants: [
+            { size: "Pack of 50", price: 199.00, image: "/products/event-napkin-cocktail.png", type: "Standard" }
+        ]
+    },
+    {
+        id: "event-starter-napkin-dinner",
+        name: "Linen-Feel Dinner Napkins",
+        tag: "Event Starter",
+        basePrice: 299.00,
+        currency: "₹",
+        description: "Sage green napkins that feel like real linen. luxurious thickness and absorbency for sit-down dinners.",
+        image: "/products/event-napkin-dinner.png",
+        seoKeywords: ["dinner napkins", "green napkins", "premium napkins", "hanky tales", "wedding napkins"],
+        variants: [
+            { size: "Pack of 25", price: 299.00, image: "/products/event-napkin-dinner.png", type: "Standard" }
+        ]
+    },
+    {
+        id: "event-starter-cutlery",
+        name: "Rustic Wooden Cutlery",
+        tag: "Event Starter",
+        basePrice: 249.00,
+        currency: "₹",
+        description: "Birchwood forks, spoons, and knives with branded handles. sturdy, smooth, and fully compostable.",
+        image: "/products/event-cutlery-set.png",
+        seoKeywords: ["wooden cutlery", "spoons", "forks", "knives", "hanky tales", "eco cutlery"],
+        variants: [
+            { size: "Set of 25", price: 249.00, image: "/products/event-cutlery-set.png", type: "Standard" }
+        ]
+    },
+    {
+        id: "event-starter-straws",
+        name: "Eco Paper Straws",
+        tag: "Event Starter",
+        basePrice: 99.00,
+        currency: "₹",
+        description: "Durable paper straws that don't get soggy. Striped designs to match your party theme.",
+        image: "/products/event-straws.png",
+        seoKeywords: ["paper straws", "drinking straws", "party straws", "hanky tales", "eco straws"],
+        variants: [
+            { size: "Pack of 50", price: 99.00, image: "/products/event-straws.png", type: "Standard" }
+        ]
+    },
+    {
+        id: "event-starter-bags",
+        name: "Pastel Party Bags",
+        tag: "Event Starter",
+        basePrice: 199.00,
+        currency: "₹",
+        description: "Charming gift bags for favors and treats. sturdy handle and reinforced bottom.",
+        image: "/products/event-party-bag.png",
+        seoKeywords: ["party bags", "gift bags", "favor bags", "hanky tales", "small bags"],
+        variants: [
+            { size: "Pack of 10", price: 199.00, image: "/products/event-party-bag.png", type: "Standard" }
+        ]
+    },
+    {
+        id: "event-starter-runner",
+        name: "Textured Table Runner",
+        tag: "Event Starter",
+        basePrice: 399.00,
+        currency: "₹",
+        description: "Disposable yet elegant table runner to tie your setting together. Neutral tones to match any decor.",
+        image: "/products/event-table-runner.png",
+        seoKeywords: ["table runner", "table cloth", "party decor", "hanky tales", "wedding decor"],
+        variants: [
+            { size: "1 Roll", price: 399.00, image: "/products/event-table-runner.png", type: "Standard" }
+        ]
+    },
 ];

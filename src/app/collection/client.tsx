@@ -11,7 +11,7 @@ import { PackagingScene } from "@/components/3d/PackagingScene";
 import { useSearchParams, useRouter } from 'next/navigation';
 import type { Product } from "@/actions/products";
 
-export function CollectionClient({ products }: { products: Product[] }) {
+export function CollectionClient({ products, collections }: { products: Product[], collections?: { title: string, image: string, link: string, count: string }[] }) {
     const [activeCategory, setActiveCategory] = useState("All Products");
     const searchParams = useSearchParams();
     const router = useRouter();
@@ -49,7 +49,7 @@ export function CollectionClient({ products }: { products: Product[] }) {
             <Navbar />
 
             {/* Header */}
-            <header className="pt-32 pb-16 text-center container-wide">
+            <header className="pt-32 pb-12 text-center container-wide">
                 <h1 className="mb-4">Our Collection</h1>
                 {searchQuery ? (
                     <p className="text-[var(--muted-foreground)]">
@@ -57,10 +57,31 @@ export function CollectionClient({ products }: { products: Product[] }) {
                     </p>
                 ) : (
                     <p className="text-[var(--muted-foreground)] max-w-2xl mx-auto">
-                        Discover the perfect blend of softness and strength. From everyday essentials to eco-friendly innovations and luxurious textures.
+                        Discover the perfect blend of softness and strength. From everyday essentials to eco-friendly innovations.
                     </p>
                 )}
             </header>
+
+            {/* Featured Collections Rail */}
+            {collections && !searchQuery && (
+                <div className="container-wide mb-16">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        {collections.map((col) => (
+                            <Link href={col.link} key={col.title} className="group relative overflow-hidden rounded-2xl aspect-[2/1] md:aspect-auto md:h-40 bg-[#F5F5F0] flex items-center p-6 hover:shadow-lg transition-all border border-transparent hover:border-[#D4A373]/30">
+                                <div className="absolute right-0 top-0 bottom-0 w-1/3">
+                                    <Image src={col.image} alt={col.title} fill className="object-cover opacity-80 group-hover:scale-110 transition-transform duration-700 mixture-multiply" />
+                                    <div className="absolute inset-0 bg-gradient-to-l from-transparent to-[#F5F5F0]"></div>
+                                </div>
+                                <div className="relative z-10">
+                                    <h3 className="font-serif text-xl font-bold text-[#2C3E50] mb-1 group-hover:text-[#D4A373] transition-colors">{col.title}</h3>
+                                    <p className="text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wider mb-2">{col.count}</p>
+                                    <span className="inline-flex items-center text-xs font-bold underline decoration-1 underline-offset-4">Shop Category</span>
+                                </div>
+                            </Link>
+                        ))}
+                    </div>
+                </div>
+            )}
 
             <main className="container-wide grid grid-cols-1 md:grid-cols-12 gap-12 pb-24">
                 {/* Sidebar Filters */}
