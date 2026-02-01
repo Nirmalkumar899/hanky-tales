@@ -55,12 +55,11 @@ export function HeroTextReveal() {
                 <Text
                     position={[0, 0, 0]}
                     fontSize={2.5} // Larger font
-                    color="#2C3E50"
+                    color="#2C3E50" // Dark text
                     anchorX="center"
                     anchorY="middle"
-                    font="https://fonts.gstatic.com/s/playfairdisplay/v30/nuFvD-vYSZviVYUb_rj3ij__anPXJzDwcbmjWBN2PKdFvXDXbtM.woff"
-                >
-                    Hanky Tales
+                // font prop removed to use default
+                >    Hanky Tales
                 </Text>
             </group>
 

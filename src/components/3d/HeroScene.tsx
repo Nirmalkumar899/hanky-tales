@@ -1,7 +1,7 @@
 'use client';
 
 import { Canvas } from '@react-three/fiber';
-import { Environment, OrbitControls, ContactShadows } from '@react-three/drei';
+import { Environment, OrbitControls, ContactShadows, Html } from '@react-three/drei';
 import { FloatingTissue } from './FloatingTissue';
 import { MascotCharacter } from './MascotCharacter';
 import { HeroTextReveal } from './HeroTextReveal';
@@ -15,7 +15,7 @@ export function HeroScene() {
                 shadows
                 dpr={[1, 2]}
             >
-                <Suspense fallback={null}>
+                <Suspense fallback={<Html center><div className="text-black font-serif text-xl">Loading...</div></Html>}>
                     <ambientLight intensity={0.5} />
                     <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} intensity={1} castShadow />
                     <pointLight position={[-10, -10, -10]} intensity={1} />
