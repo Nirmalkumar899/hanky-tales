@@ -19,7 +19,11 @@ const productThemes: Record<string, { bg: string, text: string, accent: string, 
 
 // Video map for specific products
 const productVideos: Record<string, string> = {
-    'velvet-touch-blush-pink': 'https://res.cloudinary.com/deyprglur/video/upload/v1769943516/Create_an_add_1080p_202602011620_vzmkel.mov'
+    'velvet-touch-blush-pink': 'https://res.cloudinary.com/deyprglur/video/upload/v1769943516/Create_an_add_1080p_202602011620_vzmkel.mov',
+    'velvet-touch-mint-breeze': 'https://res.cloudinary.com/deyprglur/video/upload/v1769944648/Create_an_adv_1080p_202602011641_1_psmgom.mov',
+    'velvet-touch-sky-blue': 'https://res.cloudinary.com/deyprglur/video/upload/v1769944652/Create_an_adv_1080p_202602011641_a1trie.mov',
+    'velvet-touch-classic-white': 'https://res.cloudinary.com/deyprglur/video/upload/v1769944665/Create_an_adv_1080p_202602011642_1_plx0uh.mov',
+    'velvet-touch-lavender-mist': 'https://res.cloudinary.com/deyprglur/video/upload/v1769944651/Create_an_adv_1080p_202602011642_oslj0n.mov'
 };
 
 export function ProductClient({ product }: { product: Product }) {
