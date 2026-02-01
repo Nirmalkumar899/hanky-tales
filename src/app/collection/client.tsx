@@ -30,7 +30,15 @@ export function CollectionClient({ products, collections }: { products: Product[
     };
 
     const filteredProducts = products.filter(product => {
-        const matchesCategory = activeCategory === "All Products" || product.tag === activeCategory || (activeCategory === "Luxury Collection" && product.tag === "Luxury");
+        let matchesCategory = true;
+
+        if (activeCategory === "Event Starter Set") {
+            matchesCategory = product.tag === 'Event Starter' || product.id.startsWith('event-starter');
+        } else if (activeCategory === "Facial Tissues") {
+            matchesCategory = product.id.startsWith('velvet-touch');
+        } else if (activeCategory === "Packaging Solutions") {
+            matchesCategory = !product.id.startsWith('velvet-touch') && !product.id.startsWith('event-starter');
+        }
 
         // Safety check for text fields
         const name = product.name?.toLowerCase() || "";
@@ -94,7 +102,7 @@ export function CollectionClient({ products, collections }: { products: Product[
 
                         <div className="space-y-4">
                             <p className="font-medium text-xs tracking-wider uppercase text-[var(--muted-foreground)] mb-3">Categories</p>
-                            {["All Products", "Everyday Essentials", "Luxury Collection", "Eco-Friendly"].map(cat => (
+                            {["All Products", "Event Starter Set", "Facial Tissues", "Packaging Solutions"].map(cat => (
                                 <label key={cat} className="flex items-center gap-3 cursor-pointer group">
                                     <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${activeCategory === cat ? 'border-[var(--primary)] bg-[var(--primary)] text-white' : 'border-[var(--muted-foreground)]'}`}>
                                         {activeCategory === cat && <div className="w-1.5 h-1.5 bg-white rounded-full"></div>}
@@ -104,27 +112,6 @@ export function CollectionClient({ products, collections }: { products: Product[
                                     </span>
                                 </label>
                             ))}
-                        </div>
-
-                        <div className="space-y-4 mt-8">
-                            <p className="font-medium text-xs tracking-wider uppercase text-[var(--muted-foreground)] mb-3">Thickness</p>
-                            {["2-Ply Standard", "3-Ply Premium", "4-Ply Ultra"].map(item => (
-                                <label key={item} className="flex items-center gap-3 cursor-pointer">
-                                    <div className="w-4 h-4 rounded-full border border-[var(--muted-foreground)]"></div>
-                                    <span className="text-sm text-[var(--muted-foreground)]">{item}</span>
-                                </label>
-                            ))}
-                        </div>
-
-                        <div className="space-y-4 mt-8">
-                            <p className="font-medium text-xs tracking-wider uppercase text-[var(--muted-foreground)] mb-3">Pack Size</p>
-                            <div className="flex flex-wrap gap-2">
-                                {["Box of 100", "Box of 200", "Cube"].map(tag => (
-                                    <span key={tag} className="px-3 py-1 rounded-full border border-[var(--border)] text-xs text-[var(--muted-foreground)] hover:border-[var(--foreground)] cursor-pointer transition-colors">
-                                        {tag}
-                                    </span>
-                                ))}
-                            </div>
                         </div>
 
                         <Button
