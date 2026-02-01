@@ -136,20 +136,25 @@ export default function Home() {
 
             <div className="grid md:grid-cols-3 gap-8">
               {[
-                { title: "Facial Tissues", desc: "Infused with aloe vera for the sensitive touch.", icon: "/icon-facial-tissues.png" },
-                { title: "Paper Towels", desc: "Superior absorption with diamond-weave technology.", icon: "/icon-paper-towels.png" },
-                { title: "Dinner Napkins", desc: "Elegant, linen-feel disposables for fine dining.", icon: "/icon-dinner-napkins.png" }
+                { title: "Facial Tissues", desc: "Infused with aloe vera for the sensitive touch.", icon: "/products/facial-tissue-pink.png", link: "/collection/facial-tissues" },
+                { title: "Paper Towels", desc: "Superior absorption with diamond-weave technology.", icon: "/icon-paper-towels.png", link: "/collection/facial-tissues" }, // Placeholder link for now
+                { title: "Dinner Napkins", desc: "Elegant, linen-feel disposables for fine dining.", icon: "/icon-dinner-napkins.png", link: "/collection/facial-tissues" } // Placeholder link for now
               ].map((item, i) => (
-                <div key={i} className="glass-card p-10 rounded-2xl hover:shadow-2xl transition-all duration-300 group cursor-pointer flex flex-col items-center text-center">
-                  <div className="w-32 h-32 mb-6 group-hover:scale-110 transition-transform duration-300">
-                    <Image src={item.icon} alt={item.title} width={128} height={128} className="w-full h-full object-contain" />
+                <Link href={item.link} key={i} className="glass-card p-10 rounded-2xl hover:shadow-2xl transition-all duration-300 group cursor-pointer flex flex-col items-center text-center border-2 border-transparent hover:border-[#E76F51]/20">
+                  <div className="w-48 h-48 mb-6 relative group-hover:scale-110 transition-transform duration-500">
+                    <Image
+                      src={item.icon}
+                      alt={item.title}
+                      fill
+                      className="object-contain drop-shadow-xl"
+                    />
                   </div>
-                  <h3 className="text-2xl font-bold mb-3">{item.title}</h3>
-                  <p className="mb-6">{item.desc}</p>
-                  <div className="flex items-center text-[var(--primary)] font-medium text-sm group-hover:translate-x-2 transition-transform">
+                  <h3 className="text-2xl font-bold mb-3 font-serif">{item.title}</h3>
+                  <p className="mb-6 text-[var(--muted-foreground)]">{item.desc}</p>
+                  <div className="flex items-center text-[var(--primary)] font-bold text-sm group-hover:translate-x-2 transition-transform uppercase tracking-wider">
                     Shop {item.title} <ArrowRight className="ml-2 w-4 h-4" />
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           </div>

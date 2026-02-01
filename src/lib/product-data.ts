@@ -239,4 +239,69 @@ export const products = [
             { size: "50 Guests", price: 4500.00, image: "/pack_collection_set.png", type: "Standard" },
         ]
     },
+    {
+        id: "velvet-touch-blush-pink",
+        name: "Velvet Touch - Blush Pink",
+        tag: "New",
+        basePrice: 149.00,
+        currency: "₹",
+        description: "Experience the gentle caress of our Velvet Touch facial tissues in a stunning Blush Pink box. Infused with a hint of aloe vera for sensitive skin. 2-ply softness, 100 pulls.",
+        image: "/products/facial-tissue-pink.png",
+        seoKeywords: ["facial tissues", "pink tissue box", "soft tissues", "hanky tales", "face tissues", "aloe vera tissues"],
+        variants: [
+            { size: "100 Pulls", price: 149.00, image: "/products/facial-tissue-pink.png", type: "Standard" }
+        ]
+    },
+    {
+        id: "velvet-touch-mint-breeze",
+        name: "Velvet Touch - Mint Breeze",
+        tag: "Bestseller",
+        basePrice: 149.00,
+        currency: "₹",
+        description: "Refresh your space with our Mint Breeze facial tissues. The soothing mint green box complements any modern decor. Ultra-soft, highly absorbent 2-ply tissues.",
+        image: "/products/facial-tissue-mint.png",
+        seoKeywords: ["facial tissues", "mint tissue box", "green tissues", "soft tissues", "hanky tales", "absorbent tissues"],
+        variants: [
+            { size: "100 Pulls", price: 149.00, image: "/products/facial-tissue-mint.png", type: "Standard" }
+        ]
+    },
+    {
+        id: "velvet-touch-sky-blue",
+        name: "Velvet Touch - Sky Blue",
+        tag: "Hypoallergenic",
+        basePrice: 149.00,
+        currency: "₹",
+        description: "Calming Sky Blue packaging holding our signature softness. Perfect for nurseries or bathrooms. Hypoallergenic and free from harsh chemicals.",
+        image: "/products/facial-tissue-blue.png",
+        seoKeywords: ["facial tissues", "blue tissue box", "soft tissues", "hanky tales", "hypoallergenic tissues", "baby tissues"],
+        variants: [
+            { size: "100 Pulls", price: 149.00, image: "/products/facial-tissue-blue.png", type: "Standard" }
+        ]
+    },
+    {
+        id: "velvet-touch-classic-white",
+        name: "Velvet Touch - Classic White",
+        tag: "Premium",
+        basePrice: 199.00,
+        currency: "₹",
+        description: "Timeless elegance with our Classic White box. Featuring gold foil 'Hanky Tales' branding. The ultimate symbol of luxury for your home or office.",
+        image: "/products/facial-tissue-white.png",
+        seoKeywords: ["facial tissues", "white tissue box", "luxury tissues", "hanky tales", "premium tissues", "gold box"],
+        variants: [
+            { size: "100 Pulls", price: 199.00, image: "/products/facial-tissue-white.png", type: "Standard" }
+        ]
+    },
+    {
+        id: "velvet-touch-lavender-mist",
+        name: "Velvet Touch - Lavender Mist",
+        tag: "Soft",
+        basePrice: 149.00,
+        currency: "₹",
+        description: "A touch of serenity with our Lavender Mist box. These tissues are as soft as a cloud and strong enough for everyday use. 100% virgin pulp.",
+        image: "/products/facial-tissue-lavender.png",
+        seoKeywords: ["facial tissues", "lavender tissue box", "purple tissues", "soft tissues", "hanky tales", "virgin pulp tissues"],
+        variants: [
+            { size: "100 Pulls", price: 149.00, image: "/products/facial-tissue-lavender.png", type: "Standard" }
+        ]
+    },
 ];
