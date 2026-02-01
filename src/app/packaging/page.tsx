@@ -30,9 +30,17 @@ export default async function PackagingPage() {
                         Elevate your brand with our eco-conscious food packaging. Durable, beautiful, and responsible.
                     </p>
                     <div className="flex gap-4">
-                        <Button size="lg">Shop Wholesale</Button>
-                        <Link href="mailto:hankytales@gmail.com">
-                            <Button size="lg" variant="outline">Request Sample</Button>
+                        <Link
+                            href="/wholesale"
+                            className="inline-flex items-center justify-center rounded-full font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-[var(--primary)] text-white hover:bg-[#B59669] shadow-lg shadow-[#C6A87C]/20 h-14 px-10 text-lg"
+                        >
+                            Shop Wholesale
+                        </Link>
+                        <Link
+                            href="mailto:hankytales@gmail.com"
+                            className="inline-flex items-center justify-center rounded-full font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border-2 border-[var(--foreground)] bg-transparent hover:bg-[var(--foreground)] hover:text-white h-14 px-10 text-lg"
+                        >
+                            Request Sample
                         </Link>
                     </div>
                 </div>
