@@ -9,10 +9,16 @@ export default async function AdminPage() {
     const { data: { user } } = await supabase.auth.getUser();
 
     // Security Check: Hardcoded Admin Email Protection
-    if (!user || user.email !== 'fekupsony@gmail.com') {
+    // Security Check: Hardcoded Admin Email Protection
+    if (!user) {
+        redirect('/login');
+    }
+
+    if (user.email !== 'fekupsony@gmail.com') {
         return (
             <div className="min-h-screen flex items-center justify-center bg-red-50 text-red-600 font-bold p-10">
-                Unauthorized Access. Admin only.
+                Unauthorized Access. Admin only. <br />
+                Current User: {user.email}
             </div>
         );
     }
