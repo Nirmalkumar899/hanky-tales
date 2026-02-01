@@ -9,7 +9,7 @@ import { Suspense } from 'react';
 
 export function HeroScene() {
     return (
-        <div className="w-full h-[500px] lg:h-[600px] relative">
+        <div className="w-full h-full relative">
             <Canvas
                 camera={{ position: [0, 0, 8], fov: 45 }} // Moved back to see full text
                 shadows

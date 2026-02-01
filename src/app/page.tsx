@@ -38,52 +38,17 @@ export default function Home() {
       >
         <Navbar />
 
-        <section className="pt-32 pb-20 lg:pt-48 lg:pb-32 container-wide">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+        <section className="pt-32 pb-20 lg:pt-32 lg:pb-32 container-wide">
+          <div className="w-full">
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={!showIntro ? { opacity: 1, y: 0 } : {}} // Trigger immediately when intro ends
-              transition={{ duration: 0.6, delay: 0.1 }} // Slight stagger
-            >
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--accent)] text-xs font-medium tracking-wider uppercase mb-6 text-[var(--foreground)]">
-                <span className="w-1.5 h-1.5 rounded-full bg-[var(--primary)]"></span>
-                The Gold Standard of Softness
-              </div>
-              <h1 className="mb-6">
-                Every Touch <br />
-                Tells <span className="text-[var(--primary)] italic">A Story.</span>
-              </h1>
-              <p className="text-xl max-w-md mb-8">
-                Experience the gentle embrace of premium woven fibers. Hanky Tales delivers unparalleled softness, designed for life's most delicate moments.
-              </p>
-              <div className="flex flex-wrap gap-4">
-                <Button size="lg">Explore Collection</Button>
-                <Link href="/our-story">
-                  <Button size="lg" variant="ghost">Our Story</Button>
-                </Link>
-              </div>
-
-              <div className="mt-12 flex gap-8 text-sm font-medium text-[var(--muted-foreground)]">
-                <div className="flex items-center gap-2">
-                  <Leaf className="w-4 h-4 text-[var(--marketing-green)]" />
-                  100% Organic
-                </div>
-                <div className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-[var(--primary)]" />
-                  Ultra Absorbent
-                </div>
-              </div>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }} // Start slightly smaller
+              initial={{ opacity: 0, scale: 0.95 }}
               animate={!showIntro ? { opacity: 1, scale: 1 } : {}}
               transition={{ duration: 0.8, ease: "easeOut" }}
               className="w-full"
             >
-              <div className="relative w-full">
-                <div className="absolute inset-0 bg-gradient-to-tr from-[#6B8E6F]/20 to-transparent rounded-3xl -rotate-6 blur-2xl z-0"></div>
-                <div className="relative z-10">
+              <div className="relative w-full h-[70vh] min-h-[600px]">
+                <div className="absolute inset-0 bg-gradient-to-tr from-[#6B8E6F]/10 to-transparent rounded-3xl -rotate-1 blur-3xl z-0"></div>
+                <div className="relative z-10 w-full h-full">
                   <HeroScene />
                 </div>
               </div>
